@@ -5,10 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { MaturityRadar } from "@/components/MaturityRadar";
 import { maturityCategories, maturityLevels } from "@/data/maturityData";
 import { ArrowLeft, Download, MessageCircle } from "lucide-react";
+import { generateMaturityReport } from "@/utils/pdfGenerator";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Resultado() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { scores } = location.state as { scores: Record<string, number> };
 
   if (!scores) {
@@ -102,6 +105,25 @@ export default function Resultado() {
   };
 
   const recommendations = getRecommendations();
+
+  const handleDownloadPDF = () => {
+    try {
+      const pdf = generateMaturityReport(scores, currentLevel, maturityCategories, recommendations);
+      pdf.save(`Relatorio-Maturidade-Vendas-B2B-${new Date().toISOString().split('T')[0]}.pdf`);
+      
+      toast({
+        title: "Relatório baixado com sucesso!",
+        description: "O arquivo PDF foi salvo em seu dispositivo.",
+      });
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      toast({
+        title: "Erro ao gerar relatório",
+        description: "Tente novamente em alguns instantes.",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/30 p-4">
@@ -237,7 +259,12 @@ export default function Resultado() {
                 <MessageCircle className="w-5 h-5 mr-2" />
                 Falar com Especialista
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-white text-white hover:bg-white hover:text-primary"
+                onClick={handleDownloadPDF}
+              >
                 <Download className="w-5 h-5 mr-2" />
                 Baixar Relatório Completo
               </Button>
