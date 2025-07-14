@@ -4,6 +4,8 @@ export interface MaturityLevel {
   description: string;
   color: string;
   characteristics: string[];
+  salesEfficiency: number;
+  revenueIncrease: string;
 }
 
 export interface MaturityCategory {
@@ -36,7 +38,9 @@ export const maturityLevels: MaturityLevel[] = [
       "Métricas inexistentes ou irrelevantes",
       "Cultura reativa e desorganizada",
       "Falta de estratégias definidas"
-    ]
+    ],
+    salesEfficiency: 1.0,
+    revenueIncrease: "0%"
   },
   {
     id: 2,
@@ -48,7 +52,9 @@ export const maturityLevels: MaturityLevel[] = [
       "Primeiros indícios de segmentação",
       "Cultura em transição",
       "Métricas básicas implementadas"
-    ]
+    ],
+    salesEfficiency: 1.25,
+    revenueIncrease: "25%"
   },
   {
     id: 3,
@@ -60,7 +66,9 @@ export const maturityLevels: MaturityLevel[] = [
       "Cultura data-driven iniciante",
       "Coordenação entre vendas e marketing",
       "Ciclo de vendas definido"
-    ]
+    ],
+    salesEfficiency: 1.6,
+    revenueIncrease: "60%"
   },
   {
     id: 4,
@@ -72,7 +80,9 @@ export const maturityLevels: MaturityLevel[] = [
       "Previsibilidade alta",
       "Cultura orientada para desempenho",
       "Coordenação forte entre áreas"
-    ]
+    ],
+    salesEfficiency: 2.0,
+    revenueIncrease: "100%"
   },
   {
     id: 5,
@@ -84,7 +94,9 @@ export const maturityLevels: MaturityLevel[] = [
       "Cultura organizacional de alto nível",
       "Processos otimizados",
       "Liderança estratégica"
-    ]
+    ],
+    salesEfficiency: 2.5,
+    revenueIncrease: "150%"
   }
 ];
 

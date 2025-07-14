@@ -171,6 +171,23 @@ export default function Resultado() {
                 </ul>
               </div>
 
+              <div className="mt-4 p-4 bg-success/10 rounded-lg border border-success/20">
+                <h4 className="font-semibold text-success mb-2">Impacto na Eficiência de Vendas:</h4>
+                <div className="flex items-center gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-success">{currentLevel.salesEfficiency}x</div>
+                    <div className="text-xs text-muted-foreground">Multiplicador de Eficiência</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-success">+{currentLevel.revenueIncrease}</div>
+                    <div className="text-xs text-muted-foreground">Aumento de Receita</div>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Empresas neste nível de maturidade demonstram <strong>{currentLevel.salesEfficiency}x mais eficiência</strong> em processos de vendas e <strong>{currentLevel.revenueIncrease} de aumento na receita</strong> comparado ao nível inicial.
+                </p>
+              </div>
+
               {nextLevel && (
                 <div className="mt-6 p-4 bg-accent/10 rounded-lg">
                   <h4 className="font-semibold text-accent mb-2">Próximo nível:</h4>
