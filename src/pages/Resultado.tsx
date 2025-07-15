@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MaturityRadar } from "@/components/MaturityRadar";
+import { LeadCaptureForm } from "@/components/LeadCaptureForm";
 import { maturityCategories, maturityLevels } from "@/data/maturityData";
 import { ArrowLeft, Download, MessageCircle } from "lucide-react";
 import { generateMaturityReport } from "@/utils/pdfGenerator";
@@ -13,6 +15,7 @@ export default function Resultado() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { scores } = location.state as { scores: Record<string, number> };
+  const [showLeadForm, setShowLeadForm] = useState(false);
 
   if (!scores) {
     navigate('/');
@@ -106,8 +109,16 @@ export default function Resultado() {
 
   const recommendations = getRecommendations();
 
-  const handleDownloadPDF = () => {
+  const handleDownloadRequest = () => {
+    setShowLeadForm(true);
+  };
+
+  const handleLeadSubmit = async (leadData: any) => {
     try {
+      // Aqui você pode salvar os dados do lead se necessário
+      console.log('Dados do lead:', leadData);
+      
+      // Gerar e baixar o PDF
       const pdf = generateMaturityReport(scores, currentLevel, maturityCategories, recommendations);
       pdf.save(`Relatorio-Maturidade-Vendas-B2B-${new Date().toISOString().split('T')[0]}.pdf`);
       
@@ -263,7 +274,7 @@ export default function Resultado() {
                 size="lg" 
                 variant="outline" 
                 className="border-white text-white hover:bg-white hover:text-primary"
-                onClick={handleDownloadPDF}
+                onClick={handleDownloadRequest}
               >
                 <Download className="w-5 h-5 mr-2" />
                 Baixar Relatório Completo
@@ -271,6 +282,13 @@ export default function Resultado() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Formulário de Captura de Lead */}
+        <LeadCaptureForm
+          isOpen={showLeadForm}
+          onClose={() => setShowLeadForm(false)}
+          onSubmit={handleLeadSubmit}
+        />
       </div>
     </div>
   );
