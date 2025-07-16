@@ -14,8 +14,10 @@ export default function Resultado() {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { scores } = location.state as { scores: Record<string, number> };
   const [showLeadForm, setShowLeadForm] = useState(false);
+
+  // Safely extract scores from location state
+  const scores = location.state?.scores as Record<string, number> | undefined;
 
   if (!scores) {
     navigate('/');
