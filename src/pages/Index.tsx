@@ -14,6 +14,13 @@ const Index = () => {
       <section className="relative overflow-hidden px-4 py-20">
         <div className="max-w-6xl mx-auto text-center">
           <div className="mb-8 animate-fade-in">
+            <div className="mb-6">
+              <img 
+                src="/lovable-uploads/a7c008ff-9d99-4a1f-bda2-9f81d4fb0721.png" 
+                alt="Mastervendas Logo" 
+                className="h-20 mx-auto object-contain"
+              />
+            </div>
             <Badge variant="outline" className="mb-4 px-4 py-2 text-sm font-medium">
               Framework Mastervendas
             </Badge>
