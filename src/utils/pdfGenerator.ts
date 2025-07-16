@@ -1,18 +1,20 @@
 import jsPDF from 'jspdf';
 import { MaturityLevel, MaturityCategory } from '@/data/maturityData';
 
-// Cores do tema (convertidas para RGB)
+// Cores do tema (convertidas para RGB baseadas no design system)
 const colors = {
-  primary: [79, 70, 229] as const,
-  secondary: [147, 51, 234] as const,
-  accent: [59, 130, 246] as const,
+  primary: [30, 37, 54] as const,      // --primary: 222 47% 11%
+  accent: [0, 178, 179] as const,      // --accent: 184 100% 45%
+  primaryGlow: [255, 220, 104] as const, // --primary-glow: 45 100% 65%
   success: [34, 197, 94] as const,
   warning: [251, 191, 36] as const,
   error: [239, 68, 68] as const,
   text: [15, 23, 42] as const,
   textMuted: [100, 116, 139] as const,
   background: [248, 250, 252] as const,
-  white: [255, 255, 255] as const
+  white: [255, 255, 255] as const,
+  gray: [200, 200, 200] as const,
+  lightGray: [240, 240, 240] as const
 };
 
 function drawRadarChart(
@@ -121,160 +123,168 @@ export const generateMaturityReport = (
   
   // === PÁGINA 1: CAPA ===
   
-  // Fundo gradient (simulado com retângulos)
-  for (let i = 0; i < 50; i++) {
-    const alpha = 1 - (i / 50);
-    doc.setFillColor(79 + i, 70 + i, 229, alpha * 0.1);
-    doc.rect(0, i * 4, pageWidth, 4, 'F');
+  // Fundo gradient (cores do site)
+  doc.setFillColor(...colors.primary);
+  doc.rect(0, 0, pageWidth, pageHeight, 'F');
+  
+  // Elementos decorativos em gradiente
+  for (let i = 0; i < 40; i++) {
+    const alpha = 0.3 - (i / 100);
+    const y = i * 7;
+    doc.setFillColor(0, 178, 179, alpha); // accent color
+    doc.rect(0, y, pageWidth, 3, 'F');
   }
   
-  // Logo/Marca Mastervendas
+  // Logo Mastervendas (usando a marca visual)
   doc.setFillColor(...colors.white);
-  doc.roundedRect(20, 20, 60, 20, 5, 5, 'F');
-  doc.setFontSize(16);
+  doc.roundedRect(pageWidth/2 - 40, 25, 80, 25, 8, 8, 'F');
+  
+  // Criar elementos visuais da logo (formato simplificado)
+  doc.setFillColor(...colors.accent);
+  for (let i = 0; i < 4; i++) {
+    const barWidth = 12 - i * 2;
+    const barHeight = 3;
+    doc.roundedRect(pageWidth/2 - 35 + i * 3, 30 + i * 2, barWidth, barHeight, 1, 1, 'F');
+  }
+  
+  doc.setFontSize(14);
   doc.setTextColor(...colors.primary);
   doc.setFont('helvetica', 'bold');
-  doc.text('MASTERVENDAS', 50, 32, { align: 'center' });
+  doc.text('MASTERVENDAS', pageWidth/2, 43, { align: 'center' });
   
   // Título principal
-  doc.setFontSize(28);
+  doc.setFontSize(30);
   doc.setTextColor(...colors.white);
   doc.setFont('helvetica', 'bold');
-  doc.text('DIAGNÓSTICO DE', pageWidth/2, 80, { align: 'center' });
-  doc.text('MATURIDADE EM', pageWidth/2, 95, { align: 'center' });
-  doc.text('VENDAS B2B', pageWidth/2, 110, { align: 'center' });
+  doc.text('DIAGNÓSTICO DE', pageWidth/2, 90, { align: 'center' });
+  doc.text('MATURIDADE EM', pageWidth/2, 110, { align: 'center' });
+  doc.text('VENDAS B2B', pageWidth/2, 130, { align: 'center' });
   
   // Subtítulo
   doc.setFontSize(14);
   doc.setFont('helvetica', 'normal');
-  doc.text('Análise completa do nível de maturidade da sua empresa', pageWidth/2, 130, { align: 'center' });
+  doc.setTextColor(255, 255, 255, 0.9);
+  doc.text('Análise completa do nível de maturidade da sua empresa', pageWidth/2, 150, { align: 'center' });
   
-  // Nível atual - Card destacado
-  const cardY = 150;
+  // Nível atual - Card destacado com gradiente accent
+  const cardY = 170;
+  doc.setFillColor(...colors.accent);
+  doc.roundedRect(25, cardY, pageWidth - 50, 70, 15, 15, 'F');
+  
+  // Card interno branco
   doc.setFillColor(...colors.white);
-  doc.roundedRect(30, cardY, pageWidth - 60, 60, 10, 10, 'F');
-  doc.setDrawColor(...colors.primary);
-  doc.setLineWidth(2);
-  doc.roundedRect(30, cardY, pageWidth - 60, 60, 10, 10, 'S');
+  doc.roundedRect(30, cardY + 5, pageWidth - 60, 60, 10, 10, 'F');
   
   doc.setFontSize(16);
-  doc.setTextColor(...colors.primary);
+  doc.setTextColor(...colors.accent);
   doc.setFont('helvetica', 'bold');
-  doc.text('SEU NÍVEL ATUAL', pageWidth/2, cardY + 15, { align: 'center' });
+  doc.text('SEU NÍVEL ATUAL', pageWidth/2, cardY + 20, { align: 'center' });
   
-  doc.setFontSize(24);
-  doc.text(`NÍVEL ${currentLevel.id} - ${currentLevel.name.toUpperCase()}`, pageWidth/2, cardY + 35, { align: 'center' });
+  doc.setFontSize(22);
+  doc.setTextColor(...colors.primary);
+  doc.text(`NÍVEL ${currentLevel.id} - ${currentLevel.name.toUpperCase()}`, pageWidth/2, cardY + 40, { align: 'center' });
   
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...colors.textMuted);
-  doc.text(currentLevel.description, pageWidth/2, cardY + 50, { align: 'center' });
+  const description = doc.splitTextToSize(currentLevel.description, pageWidth - 80);
+  doc.text(description, pageWidth/2, cardY + 55, { align: 'center' });
   
   // Data do relatório
   doc.setFontSize(10);
-  doc.setTextColor(...colors.textMuted);
-  doc.text(`Relatório gerado em: ${new Date().toLocaleDateString('pt-BR')}`, pageWidth/2, 240, { align: 'center' });
+  doc.setTextColor(255, 255, 255, 0.8);
+  doc.text(`Relatório gerado em: ${new Date().toLocaleDateString('pt-BR')}`, pageWidth/2, 270, { align: 'center' });
   
   // === PÁGINA 2: GRÁFICO DE RADAR E ANÁLISE ===
   doc.addPage();
   
   // Header da página
   doc.setFillColor(...colors.primary);
-  doc.rect(0, 0, pageWidth, 25, 'F');
-  doc.setFontSize(18);
+  doc.rect(0, 0, pageWidth, 30, 'F');
+  doc.setFontSize(20);
   doc.setTextColor(...colors.white);
   doc.setFont('helvetica', 'bold');
-  doc.text('RADAR DE MATURIDADE', pageWidth/2, 17, { align: 'center' });
+  doc.text('RADAR DE MATURIDADE', pageWidth/2, 20, { align: 'center' });
   
-  // Gráfico de Radar
-  const radarY = 40;
-  drawRadarChart(doc, scores, categories, 20, radarY, 60);
+  // Fundo para o gráfico 
+  doc.setFillColor(...colors.lightGray);
+  doc.roundedRect(15, 40, 100, 120, 8, 8, 'F');
+  
+  // Gráfico de Radar melhor dimensionado
+  const radarY = 50;
+  const radarRadius = 45; // Aumentado para melhor visualização
+  drawRadarChart(doc, scores, categories, 20, radarY, radarRadius);
   
   // Legenda do gráfico
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(...colors.textMuted);
-  doc.text('Escala: 1 (Iniciante) a 5 (Excelência)', 20, radarY + 140);
+  doc.setFont('helvetica', 'italic');
+  doc.text('Estrutura Organizacional', 20, 40);
   
-  // Análise por categoria - lado direito
-  const analysisX = 140;
-  doc.setFontSize(14);
-  doc.setTextColor(...colors.primary);
+  // Análise por categoria - lado direito melhor organizada
+  const analysisX = 125;
+  doc.setFontSize(16);
+  doc.setTextColor(...colors.accent);
   doc.setFont('helvetica', 'bold');
   doc.text('ANÁLISE POR CATEGORIA', analysisX, 50);
   
-  let currentY = 60;
-  categories.slice(0, 5).forEach((category) => {
+  let currentY = 65;
+  categories.forEach((category, index) => {
     const score = scores[category.id] || 0;
     
-    // Nome da categoria
-    doc.setFontSize(10);
+    // Background alternado para melhor leitura
+    if (index % 2 === 0) {
+      doc.setFillColor(...colors.lightGray);
+      doc.rect(analysisX - 5, currentY - 8, 85, 12, 'F');
+    }
+    
+    // Nome da categoria (truncado se necessário)
+    doc.setFontSize(9);
     doc.setTextColor(...colors.text);
     doc.setFont('helvetica', 'bold');
-    doc.text(category.name, analysisX, currentY);
+    const categoryName = category.name.length > 20 ? 
+      category.name.substring(0, 20) + '...' : category.name;
+    doc.text(categoryName, analysisX, currentY);
     
-    // Score
-    doc.setFontSize(12);
-    doc.setTextColor(...colors.primary);
-    doc.text(`${score.toFixed(1)}/5`, analysisX + 45, currentY);
+    // Score destacado
+    doc.setFontSize(11);
+    doc.setTextColor(...colors.accent);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${score.toFixed(1)}/5`, analysisX + 55, currentY);
     
-    // Barra de progresso
-    const barWidth = 20;
-    const barHeight = 3;
-    doc.setFillColor(220, 220, 220);
-    doc.rect(analysisX, currentY + 2, barWidth, barHeight, 'F');
-    doc.setFillColor(...colors.primary);
-    doc.rect(analysisX, currentY + 2, (barWidth * score) / 5, barHeight, 'F');
+    // Barra de progresso melhorada
+    const barWidth = 25;
+    const barHeight = 4;
+    doc.setFillColor(...colors.gray);
+    doc.roundedRect(analysisX, currentY + 1, barWidth, barHeight, 1, 1, 'F');
+    doc.setFillColor(...colors.accent);
+    doc.roundedRect(analysisX, currentY + 1, (barWidth * score) / 5, barHeight, 1, 1, 'F');
     
-    currentY += 15;
+    currentY += 13;
   });
   
-  // Segunda coluna de categorias
-  if (categories.length > 5) {
-    currentY = 60;
-    categories.slice(5).forEach((category) => {
-      const score = scores[category.id] || 0;
-      
-      doc.setFontSize(10);
-      doc.setTextColor(...colors.text);
-      doc.setFont('helvetica', 'bold');
-      doc.text(category.name, analysisX, currentY + 80);
-      
-      doc.setFontSize(12);
-      doc.setTextColor(...colors.primary);
-      doc.text(`${score.toFixed(1)}/5`, analysisX + 45, currentY + 80);
-      
-      const barWidth = 20;
-      const barHeight = 3;
-      doc.setFillColor(220, 220, 220);
-      doc.rect(analysisX, currentY + 82, barWidth, barHeight, 'F');
-      doc.setFillColor(...colors.primary);
-      doc.rect(analysisX, currentY + 82, (barWidth * score) / 5, barHeight, 'F');
-      
-      currentY += 15;
-    });
-  }
+  // Box de impacto redimensionado e reestilizado
+  const impactY = 170;
+  doc.setFillColor(...colors.primary);
+  doc.roundedRect(15, impactY, pageWidth - 30, 50, 10, 10, 'F');
   
-  // Impacto na eficiência - Box destacado
-  const impactY = 160;
-  doc.setFillColor(34, 197, 94, 0.1); // Success color with opacity
-  doc.roundedRect(20, impactY, pageWidth - 40, 60, 5, 5, 'F');
-  doc.setDrawColor(...colors.success);
-  doc.setLineWidth(1);
-  doc.roundedRect(20, impactY, pageWidth - 40, 60, 5, 5, 'S');
+  // Fundo interno verde para destacar
+  doc.setFillColor(...colors.accent);
+  doc.roundedRect(20, impactY + 5, pageWidth - 40, 40, 8, 8, 'F');
   
   doc.setFontSize(14);
-  doc.setTextColor(...colors.success);
+  doc.setTextColor(...colors.white);
   doc.setFont('helvetica', 'bold');
-  doc.text('IMPACTO NA EFICIÊNCIA DE VENDAS', pageWidth/2, impactY + 15, { align: 'center' });
+  doc.text('IMPACTO NA EFICIÊNCIA DE VENDAS', pageWidth/2, impactY + 20, { align: 'center' });
   
-  doc.setFontSize(20);
+  doc.setFontSize(18);
   doc.text(`${currentLevel.salesEfficiency}x`, pageWidth/2 - 30, impactY + 35, { align: 'center' });
   doc.text(`${currentLevel.revenueIncrease}`, pageWidth/2 + 30, impactY + 35, { align: 'center' });
   
-  doc.setFontSize(10);
-  doc.setTextColor(...colors.textMuted);
-  doc.text('Multiplicador de Eficiência', pageWidth/2 - 30, impactY + 45, { align: 'center' });
-  doc.text('Aumento de Receita', pageWidth/2 + 30, impactY + 45, { align: 'center' });
+  doc.setFontSize(8);
+  doc.setTextColor(255, 255, 255, 0.9);
+  doc.text('Multiplicador de Eficiência', pageWidth/2 - 30, impactY + 42, { align: 'center' });
+  doc.text('Aumento de Receita', pageWidth/2 + 30, impactY + 42, { align: 'center' });
   
   // === PÁGINA 3: RECOMENDAÇÕES ===
   doc.addPage();
