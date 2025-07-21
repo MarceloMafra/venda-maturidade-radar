@@ -67,63 +67,20 @@ function drawRadarChart(
     
     points.push({ x: dataX, y: dataY, label: category.name, score });
     
-    // Labels das categorias - posicionamento mais próximo do gráfico
-    const labelDistance = radius + 8; // Reduzido para ficar mais próximo
+    // Labels das categorias - apenas números próximos ao eixo
+    const labelDistance = radius + 5; // Muito próximo ao eixo
     const labelX = centerX + labelDistance * Math.cos(angle);
     const labelY = centerY + labelDistance * Math.sin(angle);
     
-    doc.setFontSize(6);
+    doc.setFontSize(10);
     doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('helvetica', 'bold');
     
-    // Simplificar quebra de texto - máximo 2 linhas
-    const maxCharsPerLine = 10;
-    const words = category.name.split(' ');
-    let line1 = '';
-    let line2 = '';
+    // Número da categoria correspondente à numeração da tabela
+    const categoryNumber = (index + 1).toString();
     
-    // Primeira linha
-    for (let i = 0; i < words.length; i++) {
-      const testLine = line1 + (line1 ? ' ' : '') + words[i];
-      if (testLine.length <= maxCharsPerLine) {
-        line1 = testLine;
-      } else {
-        // Restante vai para segunda linha
-        line2 = words.slice(i).join(' ');
-        if (line2.length > maxCharsPerLine) {
-          line2 = line2.substring(0, maxCharsPerLine - 3) + '...';
-        }
-        break;
-      }
-    }
-    
-    // Posicionamento mais inteligente baseado na posição no círculo
-    let textAlign: 'left' | 'center' | 'right' = 'center';
-    let offsetX = 0;
-    let offsetY = 0;
-    
-    // Ajustar posição baseado no ângulo
-    if (Math.abs(labelX - centerX) < 5) {
-      // Posições verticais (topo/baixo)
-      textAlign = 'center';
-      offsetY = labelY > centerY ? 3 : -8;
-    } else if (labelX > centerX) {
-      // Lado direito
-      textAlign = 'left';
-      offsetX = 2;
-      offsetY = -2;
-    } else {
-      // Lado esquerdo
-      textAlign = 'right';
-      offsetX = -2;
-      offsetY = -2;
-    }
-    
-    // Desenhar as linhas de texto
-    doc.text(line1, labelX + offsetX, labelY + offsetY, { align: textAlign });
-    if (line2) {
-      doc.text(line2, labelX + offsetX, labelY + offsetY + 6, { align: textAlign });
-    }
+    // Posicionamento centrado próximo ao eixo radial
+    doc.text(categoryNumber, labelX, labelY, { align: 'center' });
   });
   
   // Desenhar linhas conectando os pontos
@@ -279,16 +236,17 @@ export const generateMaturityReport = (
   doc.setFont('helvetica', 'italic');
   doc.text('Estrutura Organizacional', 20, 40);
   
-  // Análise por categoria - lado direito com fontes menores
+  // Análise por categoria - lado direito com numeração
   const analysisX = 115;
   doc.setFontSize(12);
   doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
   doc.setFont('helvetica', 'bold');
   doc.text('ANÁLISE POR CATEGORIA', analysisX, 40);
-  
+
   let currentY = 50;
   categories.forEach((category, index) => {
     const score = scores[category.id] || 0;
+    const categoryNumber = index + 1;
     
     // Background alternado mais compacto
     if (index % 2 === 0) {
@@ -296,13 +254,19 @@ export const generateMaturityReport = (
       doc.rect(analysisX - 5, currentY - 6, 85, 10, 'F');
     }
     
+    // Número da categoria
+    doc.setFontSize(8);
+    doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${categoryNumber}.`, analysisX, currentY);
+    
     // Nome da categoria menor
     doc.setFontSize(8);
     doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
     doc.setFont('helvetica', 'bold');
-    const categoryName = category.name.length > 18 ? 
-      category.name.substring(0, 18) + '...' : category.name;
-    doc.text(categoryName, analysisX, currentY);
+    const categoryName = category.name.length > 16 ? 
+      category.name.substring(0, 16) + '...' : category.name;
+    doc.text(categoryName, analysisX + 12, currentY);
     
     // Score menor
     doc.setFontSize(9);
