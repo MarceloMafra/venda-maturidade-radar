@@ -128,13 +128,7 @@ export const generateMaturityReport = (
   doc.setFillColor(colors.background[0], colors.background[1], colors.background[2]);
   doc.rect(0, 0, pageWidth, pageHeight, 'F');
   
-  // Elementos decorativos em gradiente suave
-  for (let i = 0; i < 30; i++) {
-    const alpha = 0.1 - (i / 300);
-    const y = i * 9;
-    doc.setFillColor(colors.accentLight[0], colors.accentLight[1], colors.accentLight[2]);
-    doc.rect(0, y, pageWidth, 5, 'F');
-  }
+  // Fundo limpo sem elementos decorativos
   
   // Logo Mastervendas aprimorada
   doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
@@ -173,8 +167,8 @@ export const generateMaturityReport = (
   doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
   doc.text('EXCELÊNCIA EM VENDAS', pageWidth/2, logoY + 42, { align: 'center' });
   
-  // Título principal
-  doc.setFontSize(28);
+  // Título principal com fonte menor
+  doc.setFontSize(22);
   doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
   doc.setFont('helvetica', 'bold');
   doc.text('DIAGNÓSTICO DE', pageWidth/2, 100, { align: 'center' });
@@ -182,10 +176,10 @@ export const generateMaturityReport = (
   doc.text('VENDAS B2B', pageWidth/2, 140, { align: 'center' });
   
   // Subtítulo
-  doc.setFontSize(14);
+  doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(colors.textMuted[0], colors.textMuted[1], colors.textMuted[2]);
-  doc.text('Análise completa do nível de maturidade da sua empresa', pageWidth/2, 160, { align: 'center' });
+  doc.text('Análise completa do nível de maturidade da sua empresa', pageWidth/2, 155, { align: 'center' });
   
   // Nível atual - Card com cores suaves
   const cardY = 180;
@@ -219,21 +213,21 @@ export const generateMaturityReport = (
   // === PÁGINA 2: GRÁFICO DE RADAR E ANÁLISE ===
   doc.addPage();
   
-  // Header da página
+  // Header da página com fonte menor
   doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-  doc.rect(0, 0, pageWidth, 30, 'F');
-  doc.setFontSize(20);
+  doc.rect(0, 0, pageWidth, 25, 'F');
+  doc.setFontSize(16);
   doc.setTextColor(colors.white[0], colors.white[1], colors.white[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('RADAR DE MATURIDADE', pageWidth/2, 20, { align: 'center' });
+  doc.text('RADAR DE MATURIDADE', pageWidth/2, 17, { align: 'center' });
   
-  // Fundo para o gráfico 
+  // Fundo para o gráfico mais compacto
   doc.setFillColor(colors.lightGray[0], colors.lightGray[1], colors.lightGray[2]);
-  doc.roundedRect(15, 40, 100, 120, 8, 8, 'F');
+  doc.roundedRect(15, 35, 90, 100, 8, 8, 'F');
   
-  // Gráfico de Radar melhor dimensionado
-  const radarY = 50;
-  const radarRadius = 45; // Aumentado para melhor visualização
+  // Gráfico de Radar menor e mais equilibrado
+  const radarY = 40;
+  const radarRadius = 35; // Reduzido para melhor proporção
   drawRadarChart(doc, scores, categories, 20, radarY, radarRadius);
   
   // Legenda do gráfico
@@ -242,70 +236,70 @@ export const generateMaturityReport = (
   doc.setFont('helvetica', 'italic');
   doc.text('Estrutura Organizacional', 20, 40);
   
-  // Análise por categoria - lado direito melhor organizada
-  const analysisX = 125;
-  doc.setFontSize(16);
+  // Análise por categoria - lado direito com fontes menores
+  const analysisX = 115;
+  doc.setFontSize(12);
   doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('ANÁLISE POR CATEGORIA', analysisX, 50);
+  doc.text('ANÁLISE POR CATEGORIA', analysisX, 40);
   
-  let currentY = 65;
+  let currentY = 50;
   categories.forEach((category, index) => {
     const score = scores[category.id] || 0;
     
-    // Background alternado para melhor leitura
+    // Background alternado mais compacto
     if (index % 2 === 0) {
       doc.setFillColor(colors.lightGray[0], colors.lightGray[1], colors.lightGray[2]);
-      doc.rect(analysisX - 5, currentY - 8, 85, 12, 'F');
+      doc.rect(analysisX - 5, currentY - 6, 85, 10, 'F');
     }
     
-    // Nome da categoria (truncado se necessário)
-    doc.setFontSize(9);
+    // Nome da categoria menor
+    doc.setFontSize(8);
     doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
     doc.setFont('helvetica', 'bold');
-    const categoryName = category.name.length > 20 ? 
-      category.name.substring(0, 20) + '...' : category.name;
+    const categoryName = category.name.length > 18 ? 
+      category.name.substring(0, 18) + '...' : category.name;
     doc.text(categoryName, analysisX, currentY);
     
-    // Score destacado
-    doc.setFontSize(11);
+    // Score menor
+    doc.setFontSize(9);
     doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
     doc.setFont('helvetica', 'bold');
     doc.text(`${score.toFixed(1)}/5`, analysisX + 55, currentY);
     
-    // Barra de progresso melhorada
-    const barWidth = 25;
-    const barHeight = 4;
+    // Barra de progresso menor
+    const barWidth = 20;
+    const barHeight = 3;
     doc.setFillColor(colors.gray[0], colors.gray[1], colors.gray[2]);
     doc.roundedRect(analysisX, currentY + 1, barWidth, barHeight, 1, 1, 'F');
     doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
     doc.roundedRect(analysisX, currentY + 1, (barWidth * score) / 5, barHeight, 1, 1, 'F');
     
-    currentY += 13;
+    currentY += 11;
   });
   
-  // Box de impacto redimensionado e reestilizado
-  const impactY = 170;
+  // Box de impacto mais compacto
+  const impactY = 150;
   doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-  doc.roundedRect(15, impactY, pageWidth - 30, 50, 10, 10, 'F');
+  doc.roundedRect(15, impactY, pageWidth - 30, 40, 8, 8, 'F');
   
-  // Fundo interno verde para destacar
+  // Fundo interno para destacar
   doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.roundedRect(20, impactY + 5, pageWidth - 40, 40, 8, 8, 'F');
+  doc.roundedRect(20, impactY + 3, pageWidth - 40, 34, 6, 6, 'F');
   
-  doc.setFontSize(14);
+  doc.setFontSize(11);
   doc.setTextColor(colors.white[0], colors.white[1], colors.white[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('IMPACTO NA EFICIÊNCIA DE VENDAS', pageWidth/2, impactY + 20, { align: 'center' });
+  doc.text('IMPACTO NA EFICIÊNCIA DE VENDAS', pageWidth/2, impactY + 15, { align: 'center' });
   
-  doc.setFontSize(18);
-  doc.text(`${currentLevel.salesEfficiency}x`, pageWidth/2 - 30, impactY + 35, { align: 'center' });
-  doc.text(`${currentLevel.revenueIncrease}`, pageWidth/2 + 30, impactY + 35, { align: 'center' });
+  doc.setFontSize(14);
+  doc.text(`${currentLevel.salesEfficiency}x`, pageWidth/2 - 30, impactY + 28, { align: 'center' });
+  doc.text(`${currentLevel.revenueIncrease}`, pageWidth/2 + 30, impactY + 28, { align: 'center' });
   
-  doc.setFontSize(8);
+  doc.setFontSize(7);
   doc.setTextColor(255, 255, 255, 0.9);
-  doc.text('Multiplicador de Eficiência', pageWidth/2 - 30, impactY + 42, { align: 'center' });
-  doc.text('Aumento de Receita', pageWidth/2 + 30, impactY + 42, { align: 'center' });
+  doc.text('Multiplicador de Eficiência', pageWidth/2 - 30, impactY + 35, { align: 'center' });
+  doc.text('Aumento de Receita', pageWidth/2 + 30, impactY + 35, { align: 'center' });
   
   // === PÁGINA 3: RECOMENDAÇÕES ===
   doc.addPage();
