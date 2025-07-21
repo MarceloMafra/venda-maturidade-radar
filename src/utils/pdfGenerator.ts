@@ -67,39 +67,63 @@ function drawRadarChart(
     
     points.push({ x: dataX, y: dataY, label: category.name, score });
     
-    // Labels das categorias com posicionamento padronizado
-    const labelDistance = radius + 20;
+    // Labels das categorias - posicionamento mais próximo do gráfico
+    const labelDistance = radius + 8; // Reduzido para ficar mais próximo
     const labelX = centerX + labelDistance * Math.cos(angle);
     const labelY = centerY + labelDistance * Math.sin(angle);
     
-    doc.setFontSize(7);
+    doc.setFontSize(6);
     doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
     doc.setFont('helvetica', 'normal');
     
-    // Quebrar texto em linhas para garantir legibilidade
-    const maxCharsPerLine = 12;
+    // Simplificar quebra de texto - máximo 2 linhas
+    const maxCharsPerLine = 10;
     const words = category.name.split(' ');
-    const lines: string[] = [];
-    let currentLine = '';
+    let line1 = '';
+    let line2 = '';
     
-    words.forEach(word => {
-      if ((currentLine + word).length <= maxCharsPerLine) {
-        currentLine += (currentLine ? ' ' : '') + word;
+    // Primeira linha
+    for (let i = 0; i < words.length; i++) {
+      const testLine = line1 + (line1 ? ' ' : '') + words[i];
+      if (testLine.length <= maxCharsPerLine) {
+        line1 = testLine;
       } else {
-        if (currentLine) lines.push(currentLine);
-        currentLine = word;
+        // Restante vai para segunda linha
+        line2 = words.slice(i).join(' ');
+        if (line2.length > maxCharsPerLine) {
+          line2 = line2.substring(0, maxCharsPerLine - 3) + '...';
+        }
+        break;
       }
-    });
-    if (currentLine) lines.push(currentLine);
+    }
     
-    // Posicionar texto baseado no quadrante
-    const offsetX = labelX > centerX ? 5 : -15;
-    const offsetY = labelY > centerY ? 2 : -5;
+    // Posicionamento mais inteligente baseado na posição no círculo
+    let textAlign: 'left' | 'center' | 'right' = 'center';
+    let offsetX = 0;
+    let offsetY = 0;
     
-    lines.forEach((line, lineIndex) => {
-      const lineY = labelY + offsetY + (lineIndex * 8);
-      doc.text(line, labelX + offsetX, lineY, { align: labelX > centerX ? 'left' : 'right' });
-    });
+    // Ajustar posição baseado no ângulo
+    if (Math.abs(labelX - centerX) < 5) {
+      // Posições verticais (topo/baixo)
+      textAlign = 'center';
+      offsetY = labelY > centerY ? 3 : -8;
+    } else if (labelX > centerX) {
+      // Lado direito
+      textAlign = 'left';
+      offsetX = 2;
+      offsetY = -2;
+    } else {
+      // Lado esquerdo
+      textAlign = 'right';
+      offsetX = -2;
+      offsetY = -2;
+    }
+    
+    // Desenhar as linhas de texto
+    doc.text(line1, labelX + offsetX, labelY + offsetY, { align: textAlign });
+    if (line2) {
+      doc.text(line2, labelX + offsetX, labelY + offsetY + 6, { align: textAlign });
+    }
   });
   
   // Desenhar linhas conectando os pontos
@@ -145,23 +169,46 @@ export const generateMaturityReport = (
   
   // Fundo limpo sem elementos decorativos
   
-  // Logo Mastervendas real
-  // Usar a logo real importada no projeto
-  doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
-  doc.roundedRect(pageWidth/2 - 50, 20, 100, 35, 10, 10, 'F');
-  doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.setLineWidth(2);
-  doc.roundedRect(pageWidth/2 - 50, 20, 100, 35, 10, 10, 'S');
+  // Logo Mastervendas - área mais ampla para a logo real
+  const logoWidth = 120;
+  const logoHeight = 45;
+  const logoX = pageWidth/2 - logoWidth/2;
+  const logoY = 20;
   
-  // Placeholder para logo - em implementação futura seria carregada a imagem real
-  doc.setFontSize(14);
+  // Fundo branco para a logo
+  doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
+  doc.roundedRect(logoX, logoY, logoWidth, logoHeight, 10, 10, 'F');
+  doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.setLineWidth(1.5);
+  doc.roundedRect(logoX, logoY, logoWidth, logoHeight, 10, 10, 'S');
+  
+  // Reproduzir o design da logo Mastervendas
+  const funnelX = logoX + 20;
+  const funnelY = logoY + 12;
+  
+  // Desenhar funil (símbolo da logo)
+  const funnelLevels = [
+    { width: 16, color: colors.accentLight },
+    { width: 13, color: colors.accent },
+    { width: 10, color: colors.accentDark },
+    { width: 7, color: colors.primary }
+  ];
+  
+  funnelLevels.forEach((level, index) => {
+    doc.setFillColor(level.color[0], level.color[1], level.color[2]);
+    doc.roundedRect(funnelX - level.width/2, funnelY + index * 4.5, level.width, 3, 1, 1, 'F');
+  });
+  
+  // Texto MASTERVENDAS
+  doc.setFontSize(16);
   doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('MASTERVENDAS', pageWidth/2, 42, { align: 'center' });
+  doc.text('MASTERVENDAS', funnelX + 25, funnelY + 8);
   
-  doc.setFontSize(8);
+  doc.setFontSize(7);
   doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.text('EXCELÊNCIA EM VENDAS', pageWidth/2, 50, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+  doc.text('EXCELÊNCIA EM VENDAS', funnelX + 25, funnelY + 18);
   
   // Título principal com fonte menor
   doc.setFontSize(22);
