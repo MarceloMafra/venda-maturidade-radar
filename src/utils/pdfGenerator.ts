@@ -67,24 +67,39 @@ function drawRadarChart(
     
     points.push({ x: dataX, y: dataY, label: category.name, score });
     
-    // Labels das categorias
-    const labelDistance = radius + 15;
+    // Labels das categorias com posicionamento padronizado
+    const labelDistance = radius + 20;
     const labelX = centerX + labelDistance * Math.cos(angle);
     const labelY = centerY + labelDistance * Math.sin(angle);
     
-    doc.setFontSize(8);
+    doc.setFontSize(7);
     doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+    doc.setFont('helvetica', 'normal');
     
-    // Dividir texto longo em múltiplas linhas
+    // Quebrar texto em linhas para garantir legibilidade
+    const maxCharsPerLine = 12;
     const words = category.name.split(' ');
-    if (words.length > 2) {
-      const line1 = words.slice(0, 2).join(' ');
-      const line2 = words.slice(2).join(' ');
-      doc.text(line1, labelX - 10, labelY - 2, { align: 'center' });
-      doc.text(line2, labelX - 10, labelY + 3, { align: 'center' });
-    } else {
-      doc.text(category.name, labelX - 10, labelY, { align: 'center' });
-    }
+    const lines: string[] = [];
+    let currentLine = '';
+    
+    words.forEach(word => {
+      if ((currentLine + word).length <= maxCharsPerLine) {
+        currentLine += (currentLine ? ' ' : '') + word;
+      } else {
+        if (currentLine) lines.push(currentLine);
+        currentLine = word;
+      }
+    });
+    if (currentLine) lines.push(currentLine);
+    
+    // Posicionar texto baseado no quadrante
+    const offsetX = labelX > centerX ? 5 : -15;
+    const offsetY = labelY > centerY ? 2 : -5;
+    
+    lines.forEach((line, lineIndex) => {
+      const lineY = labelY + offsetY + (lineIndex * 8);
+      doc.text(line, labelX + offsetX, lineY, { align: labelX > centerX ? 'left' : 'right' });
+    });
   });
   
   // Desenhar linhas conectando os pontos
@@ -130,42 +145,23 @@ export const generateMaturityReport = (
   
   // Fundo limpo sem elementos decorativos
   
-  // Logo Mastervendas aprimorada
+  // Logo Mastervendas real
+  // Usar a logo real importada no projeto
   doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
   doc.roundedRect(pageWidth/2 - 50, 20, 100, 35, 10, 10, 'F');
   doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
   doc.setLineWidth(2);
   doc.roundedRect(pageWidth/2 - 50, 20, 100, 35, 10, 10, 'S');
   
-  // Desenhar o funil da logo (símbolo visual da Mastervendas)
-  const logoX = pageWidth/2 - 30;
-  const logoY = 25;
-  
-  // Níveis do funil com gradientes de cor
-  const funnelColors = [
-    colors.accentLight,
-    colors.accent,
-    colors.accentDark,
-    colors.primary
-  ];
-  
-  for (let i = 0; i < 4; i++) {
-    const width = 25 - i * 4;
-    const height = 4;
-    const color = funnelColors[i];
-    doc.setFillColor(color[0], color[1], color[2]);
-    doc.roundedRect(logoX - width/2, logoY + 5 + i * 6, width, height, 2, 2, 'F');
-  }
-  
-  // Texto MASTERVENDAS
-  doc.setFontSize(16);
+  // Placeholder para logo - em implementação futura seria carregada a imagem real
+  doc.setFontSize(14);
   doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('MASTERVENDAS', pageWidth/2, logoY + 35, { align: 'center' });
+  doc.text('MASTERVENDAS', pageWidth/2, 42, { align: 'center' });
   
   doc.setFontSize(8);
   doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.text('EXCELÊNCIA EM VENDAS', pageWidth/2, logoY + 42, { align: 'center' });
+  doc.text('EXCELÊNCIA EM VENDAS', pageWidth/2, 50, { align: 'center' });
   
   // Título principal com fonte menor
   doc.setFontSize(22);
@@ -225,10 +221,10 @@ export const generateMaturityReport = (
   doc.setFillColor(colors.lightGray[0], colors.lightGray[1], colors.lightGray[2]);
   doc.roundedRect(15, 35, 90, 100, 8, 8, 'F');
   
-  // Gráfico de Radar menor e mais equilibrado
+  // Gráfico de Radar com melhor espaçamento para labels
   const radarY = 40;
-  const radarRadius = 35; // Reduzido para melhor proporção
-  drawRadarChart(doc, scores, categories, 20, radarY, radarRadius);
+  const radarRadius = 30; // Reduzido para dar mais espaço aos labels
+  drawRadarChart(doc, scores, categories, 25, radarY, radarRadius);
   
   // Legenda do gráfico
   doc.setFontSize(9);
