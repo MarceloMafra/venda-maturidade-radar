@@ -126,46 +126,47 @@ export const generateMaturityReport = (
   
   // Fundo limpo sem elementos decorativos
   
-  // Logo Mastervendas - área mais ampla para a logo real
-  const logoWidth = 120;
-  const logoHeight = 45;
+  // Logo Mastervendas oficial
+  const logoWidth = 100;
+  const logoHeight = 40;
   const logoX = pageWidth/2 - logoWidth/2;
   const logoY = 20;
   
-  // Fundo branco para a logo
-  doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
-  doc.roundedRect(logoX, logoY, logoWidth, logoHeight, 10, 10, 'F');
-  doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.setLineWidth(1.5);
-  doc.roundedRect(logoX, logoY, logoWidth, logoHeight, 10, 10, 'S');
-  
-  // Reproduzir o design da logo Mastervendas
-  const funnelX = logoX + 20;
-  const funnelY = logoY + 12;
-  
-  // Desenhar funil (símbolo da logo)
-  const funnelLevels = [
-    { width: 16, color: colors.accentLight },
-    { width: 13, color: colors.accent },
-    { width: 10, color: colors.accentDark },
-    { width: 7, color: colors.primary }
-  ];
-  
-  funnelLevels.forEach((level, index) => {
-    doc.setFillColor(level.color[0], level.color[1], level.color[2]);
-    doc.roundedRect(funnelX - level.width/2, funnelY + index * 4.5, level.width, 3, 1, 1, 'F');
-  });
-  
-  // Texto MASTERVENDAS
-  doc.setFontSize(16);
-  doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-  doc.setFont('helvetica', 'bold');
-  doc.text('MASTERVENDAS', funnelX + 25, funnelY + 8);
-  
-  doc.setFontSize(7);
-  doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.setFont('helvetica', 'normal');
-  doc.text('EXCELÊNCIA EM VENDAS', funnelX + 25, funnelY + 18);
+  // Adicionar a logomarca oficial da Mastervendas
+  try {
+    // Note: Em uma implementação real, você precisaria carregar a imagem
+    // Por enquanto, vamos criar um placeholder que representa a logo oficial
+    doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
+    doc.roundedRect(logoX, logoY, logoWidth, logoHeight, 8, 8, 'F');
+    doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+    doc.setLineWidth(1);
+    doc.roundedRect(logoX, logoY, logoWidth, logoHeight, 8, 8, 'S');
+    
+    // Símbolo do funil da Mastervendas (baseado na logo oficial)
+    const symbolX = logoX + 15;
+    const symbolY = logoY + 8;
+    
+    // Desenhar funil estilizado
+    doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+    doc.rect(symbolX, symbolY, 12, 3, 'F');
+    doc.rect(symbolX + 1, symbolY + 4, 10, 3, 'F');
+    doc.rect(symbolX + 2, symbolY + 8, 8, 3, 'F');
+    doc.rect(symbolX + 3, symbolY + 12, 6, 3, 'F');
+    doc.rect(symbolX + 4, symbolY + 16, 4, 3, 'F');
+    
+    // Texto MASTERVENDAS
+    doc.setFontSize(14);
+    doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text('MASTERVENDAS', symbolX + 20, symbolY + 8);
+    
+    doc.setFontSize(6);
+    doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+    doc.setFont('helvetica', 'normal');
+    doc.text('EXCELÊNCIA EM VENDAS', symbolX + 20, symbolY + 16);
+  } catch (error) {
+    console.error('Erro ao carregar logo:', error);
+  }
   
   // Título principal com fonte menor
   doc.setFontSize(22);
