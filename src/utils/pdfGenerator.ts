@@ -286,8 +286,8 @@ export const generateMaturityReport = (
     currentY += 11;
   });
   
-  // Box de impacto mais compacto
-  const impactY = 150;
+  // Box de impacto mais compacto - movido para baixo
+  const impactY = 170;
   doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
   doc.roundedRect(15, impactY, pageWidth - 30, 40, 8, 8, 'F');
   
