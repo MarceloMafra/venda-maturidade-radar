@@ -31,6 +31,16 @@ export default function Resultado() {
   const getRecommendations = () => {
     const recommendations = [];
     
+    // Se o nível de maturidade for 5, mostrar mensagem especial
+    if (Math.round(overallScore) === 5) {
+      recommendations.push({
+        category: "Parabéns! Excelência Alcançada",
+        currentScore: 5,
+        suggestion: "Sua empresa atingiu o mais alto nível de maturidade em vendas B2B! Continue mantendo este padrão de excelência para consolidar sua posição como líder de mercado e referência no setor."
+      });
+      return recommendations;
+    }
+    
     // Encontrar as categorias com menor pontuação
     const sortedCategories = Object.entries(scores)
       .sort(([,a], [,b]) => a - b)
@@ -238,23 +248,48 @@ export default function Resultado() {
         {/* Recomendações */}
         <Card className="mt-8 bg-gradient-card shadow-elegant">
           <CardHeader>
-            <CardTitle>Recomendações para Evolução</CardTitle>
+            <CardTitle>
+              {Math.round(overallScore) === 5 ? "Parabéns pela Excelência!" : "Recomendações para Evolução"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recommendations.map((rec, index) => (
-                <div key={index} className="p-4 border rounded-lg bg-background/50">
-                  <h4 className="font-semibold text-primary mb-2">{rec.category}</h4>
-                  <div className="mb-3">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span>Score atual:</span>
-                      <Badge variant="outline">{rec.currentScore.toFixed(1)}/5</Badge>
-                    </div>
+            {Math.round(overallScore) === 5 ? (
+              <div className="text-center py-8">
+                <div className="mb-6">
+                  <div className="text-6xl mb-4">🏆</div>
+                  <h3 className="text-2xl font-bold text-primary mb-4">
+                    Excelência em Vendas B2B Alcançada!
+                  </h3>
+                  <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
+                    Sua empresa atingiu o mais alto nível de maturidade em vendas B2B! 
+                    Parabéns por construir uma operação de vendas de classe mundial.
+                  </p>
+                  <div className="p-6 bg-success/10 rounded-lg border border-success/20 max-w-2xl mx-auto">
+                    <h4 className="font-semibold text-success mb-3">Foco na Liderança de Mercado</h4>
+                    <p className="text-muted-foreground">
+                      Continue mantendo este padrão de excelência para consolidar sua posição como 
+                      <strong> líder de mercado</strong> e <strong>referência no setor</strong>. 
+                      Sua operação de vendas está preparada para escalar e dominar novos mercados.
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground">{rec.suggestion}</p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recommendations.map((rec, index) => (
+                  <div key={index} className="p-4 border rounded-lg bg-background/50">
+                    <h4 className="font-semibold text-primary mb-2">{rec.category}</h4>
+                    <div className="mb-3">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <span>Score atual:</span>
+                        <Badge variant="outline">{rec.currentScore.toFixed(1)}/5</Badge>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{rec.suggestion}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 

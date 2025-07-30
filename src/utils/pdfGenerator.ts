@@ -318,45 +318,101 @@ export const generateMaturityReport = (
   doc.setFontSize(18);
   doc.setTextColor(colors.white[0], colors.white[1], colors.white[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('RECOMENDAÇÕES PARA EVOLUÇÃO', pageWidth/2, 17, { align: 'center' });
+  
+  // Verificar se é nível 5 para ajustar o título
+  const isLevel5 = currentLevel.id === 5;
+  const pageTitle = isLevel5 ? 'PARABÉNS PELA EXCELÊNCIA!' : 'RECOMENDAÇÕES PARA EVOLUÇÃO';
+  doc.text(pageTitle, pageWidth/2, 17, { align: 'center' });
   
   currentY = 45;
-  recommendations.forEach((rec, index) => {
-    // Card da recomendação
-    const cardHeight = 40;
-    doc.setFillColor(248, 250, 252); // Light background
-    doc.roundedRect(20, currentY, pageWidth - 40, cardHeight, 5, 5, 'F');
-    doc.setDrawColor(226, 232, 240);
-    doc.roundedRect(20, currentY, pageWidth - 40, cardHeight, 5, 5, 'S');
+  
+  if (isLevel5) {
+    // Mensagem especial para nível 5
+    doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
+    doc.roundedRect(20, currentY, pageWidth - 40, 120, 10, 10, 'F');
+    doc.setDrawColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.setLineWidth(2);
+    doc.roundedRect(20, currentY, pageWidth - 40, 120, 10, 10, 'S');
     
-    // Número da recomendação
-    doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-    doc.circle(30, currentY + 10, 5, 'F');
-    doc.setFontSize(10);
-    doc.setTextColor(colors.white[0], colors.white[1], colors.white[2]);
-    doc.setFont('helvetica', 'bold');
-    doc.text((index + 1).toString(), 30, currentY + 12, { align: 'center' });
+    // Emoji de troféu (representado por texto especial)
+    doc.setFontSize(30);
+    doc.setTextColor(255, 215, 0); // Dourado
+    doc.text('🏆', pageWidth/2, currentY + 35, { align: 'center' });
     
-    // Título da categoria
-    doc.setFontSize(12);
+    // Título
+    doc.setFontSize(16);
     doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
     doc.setFont('helvetica', 'bold');
-    doc.text(rec.category, 40, currentY + 12);
+    doc.text('EXCELÊNCIA EM VENDAS B2B ALCANÇADA!', pageWidth/2, currentY + 55, { align: 'center' });
     
-    // Score atual
+    // Mensagem de congratulações
     doc.setFontSize(10);
-    doc.setTextColor(colors.textMuted[0], colors.textMuted[1], colors.textMuted[2]);
-    doc.text(`Score atual: ${rec.currentScore.toFixed(1)}/5`, 40, currentY + 22);
-    
-    // Sugestão
-    doc.setFontSize(9);
     doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
     doc.setFont('helvetica', 'normal');
-    const suggestion = doc.splitTextToSize(rec.suggestion, pageWidth - 80);
-    doc.text(suggestion, 40, currentY + 30);
+    const congratsText = [
+      'Sua empresa atingiu o mais alto nível de maturidade em vendas B2B!',
+      'Parabéns por construir uma operação de vendas de classe mundial.'
+    ];
+    congratsText.forEach((line, index) => {
+      doc.text(line, pageWidth/2, currentY + 70 + (index * 12), { align: 'center' });
+    });
     
-    currentY += 50;
-  });
+    // Seção de foco na liderança
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+    doc.text('FOCO NA LIDERANÇA DE MERCADO:', pageWidth/2, currentY + 100, { align: 'center' });
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+    const leadershipText = [
+      'Continue mantendo este padrão de excelência para consolidar sua',
+      'posição como líder de mercado e referência no setor.',
+      'Sua operação está preparada para escalar e dominar novos mercados.'
+    ];
+    leadershipText.forEach((line, index) => {
+      doc.text(line, pageWidth/2, currentY + 115 + (index * 10), { align: 'center' });
+    });
+  } else {
+    // Recomendações normais para outros níveis
+    recommendations.forEach((rec, index) => {
+      // Card da recomendação
+      const cardHeight = 40;
+      doc.setFillColor(248, 250, 252); // Light background
+      doc.roundedRect(20, currentY, pageWidth - 40, cardHeight, 5, 5, 'F');
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(20, currentY, pageWidth - 40, cardHeight, 5, 5, 'S');
+      
+      // Número da recomendação
+      doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+      doc.circle(30, currentY + 10, 5, 'F');
+      doc.setFontSize(10);
+      doc.setTextColor(colors.white[0], colors.white[1], colors.white[2]);
+      doc.setFont('helvetica', 'bold');
+      doc.text((index + 1).toString(), 30, currentY + 12, { align: 'center' });
+      
+      // Título da categoria
+      doc.setFontSize(12);
+      doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+      doc.setFont('helvetica', 'bold');
+      doc.text(rec.category, 40, currentY + 12);
+      
+      // Score atual
+      doc.setFontSize(10);
+      doc.setTextColor(colors.textMuted[0], colors.textMuted[1], colors.textMuted[2]);
+      doc.text(`Score atual: ${rec.currentScore.toFixed(1)}/5`, 40, currentY + 22);
+      
+      // Sugestão
+      doc.setFontSize(9);
+      doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+      doc.setFont('helvetica', 'normal');
+      const suggestion = doc.splitTextToSize(rec.suggestion, pageWidth - 80);
+      doc.text(suggestion, 40, currentY + 30);
+      
+      currentY += 50;
+    });
+  }
   
   // === PÁGINA 4: CALL TO ACTION ===
   doc.addPage();
