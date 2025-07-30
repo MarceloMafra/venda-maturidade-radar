@@ -141,6 +141,16 @@ const Index = () => {
           </Card>
         </div>
       </section>
+
+      {/* Link discreto para admin */}
+      <div className="fixed bottom-4 left-4">
+        <button
+          onClick={() => navigate('/admin')}
+          className="text-xs text-muted-foreground/50 hover:text-primary transition-colors"
+        >
+          •
+        </button>
+      </div>
     </div>
   );
 };

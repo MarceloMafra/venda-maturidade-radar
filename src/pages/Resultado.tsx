@@ -16,8 +16,9 @@ export default function Resultado() {
   const { toast } = useToast();
   const [showLeadForm, setShowLeadForm] = useState(false);
 
-  // Safely extract scores from location state
+  // Safely extract scores and answers from location state
   const scores = location.state?.scores as Record<string, number> | undefined;
+  const answers = location.state?.answers as Record<string, string> | undefined;
 
   if (!scores) {
     navigate('/');
@@ -330,6 +331,8 @@ export default function Resultado() {
           isOpen={showLeadForm}
           onClose={() => setShowLeadForm(false)}
           onSubmit={handleLeadSubmit}
+          answers={answers || {}}
+          scores={scores}
         />
       </div>
     </div>
