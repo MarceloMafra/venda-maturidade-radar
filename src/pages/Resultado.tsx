@@ -303,7 +303,12 @@ export default function Resultado() {
               A <strong>Mastervendas</strong> pode ajudar sua empresa a alcançar a excelência em vendas B2B
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="secondary" className="text-primary">
+              <Button 
+                size="lg" 
+                variant="secondary" 
+                className="text-primary"
+                onClick={() => window.open('https://wa.me/5543991049976?text=Olá! Vi o relatório de maturidade em vendas B2B e gostaria de falar com um especialista.', '_blank')}
+              >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 Falar com Especialista
               </Button>
