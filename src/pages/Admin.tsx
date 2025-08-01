@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,7 @@ interface LeadWithResult extends Lead {
 }
 
 export default function Admin() {
+  const navigate = useNavigate();
   const [leads, setLeads] = useState<LeadWithResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -155,13 +157,22 @@ export default function Admin() {
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/30 p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-2">
-            Dashboard Administrativo
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Gerencie leads e visualize dados do questionário de maturidade
-          </p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold text-primary mb-2">
+              Dashboard Administrativo
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Gerencie leads e visualize dados do questionário de maturidade
+            </p>
+          </div>
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/')}
+            className="shrink-0"
+          >
+            Voltar ao App
+          </Button>
         </div>
 
         {/* Estatísticas Gerais */}
