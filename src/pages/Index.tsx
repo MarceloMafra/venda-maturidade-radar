@@ -146,9 +146,9 @@ const Index = () => {
       <div className="fixed bottom-4 left-4">
         <button
           onClick={() => navigate('/admin')}
-          className="text-xs text-muted-foreground/50 hover:text-primary transition-colors"
+          className="text-sm text-muted-foreground hover:text-primary transition-colors bg-background/80 backdrop-blur-sm border border-border rounded-lg px-3 py-2 shadow-sm"
         >
-          •
+          Admin
         </button>
       </div>
     </div>
