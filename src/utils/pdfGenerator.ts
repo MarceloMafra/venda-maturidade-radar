@@ -414,6 +414,46 @@ export const generateMaturityReport = (
     });
   }
   
+  // CTA para o Ebook - posicionado abaixo das recomendações
+  const ebookY = currentY + 20;
+  
+  // Fundo do CTA com gradiente
+  doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.roundedRect(20, ebookY, pageWidth - 40, 55, 10, 10, 'F');
+  
+  // Fundo interno branco
+  doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
+  doc.roundedRect(25, ebookY + 5, pageWidth - 50, 45, 8, 8, 'F');
+  
+  // Ícone do livro (representação textual)
+  doc.setFontSize(16);
+  doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.text('📚', 35, ebookY + 20);
+  
+  // Título do CTA
+  doc.setFontSize(12);
+  doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+  doc.setFont('helvetica', 'bold');
+  doc.text('BAIXE GRÁTIS: EBOOK COMPLETO', 50, ebookY + 18);
+  
+  // Título do ebook
+  doc.setFontSize(10);
+  doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.setFont('helvetica', 'bold');
+  doc.text('5 Níveis de Maturidade em Vendas', 50, ebookY + 28);
+  
+  // Descrição
+  doc.setFontSize(8);
+  doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Guia completo para acelerar sua evolução comercial', 50, ebookY + 36);
+  
+  // Link de acesso
+  doc.setFontSize(8);
+  doc.setTextColor(0, 100, 200); // Azul para link
+  doc.setFont('helvetica', 'underline');
+  doc.text('Acesse gratuitamente: bit.ly/ebook-maturidade-vendas', 50, ebookY + 44);
+  
   // === PÁGINA 4: CALL TO ACTION ===
   doc.addPage();
   
