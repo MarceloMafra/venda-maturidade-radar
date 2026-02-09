@@ -1,102 +1,163 @@
 import jsPDF from 'jspdf';
 import { MaturityLevel, MaturityCategory } from '@/data/maturityData';
 
-// Cores baseadas na identidade visual da Mastervendas (tons teal/turquesa)
+// Paleta de cores premium
 const colors = {
-  primary: [37, 99, 108] as const,        // Azul-acinzentado escuro
-  accent: [0, 150, 136] as const,         // Teal principal da marca
-  accentLight: [77, 182, 172] as const,  // Teal mais claro
-  accentDark: [0, 121, 107] as const,    // Teal mais escuro
-  success: [76, 175, 80] as const,       // Verde suave
-  warning: [255, 193, 7] as const,       // Amarelo suave
-  error: [244, 67, 54] as const,         // Vermelho suave
-  text: [33, 37, 41] as const,           // Cinza escuro
-  textMuted: [108, 117, 125] as const,   // Cinza médio
-  background: [248, 249, 250] as const,  // Cinza muito claro
+  primary: [20, 77, 91] as const,           // Azul-teal escuro
+  accent: [0, 159, 139] as const,           // Teal vibrante
+  accentLight: [100, 200, 190] as const,    // Teal claro
+  accentDark: [0, 121, 107] as const,       // Teal escuro
+  success: [76, 175, 80] as const,          // Verde
+  warning: [255, 193, 7] as const,          // Amarelo
+  error: [244, 67, 54] as const,            // Vermelho
+  text: [33, 37, 41] as const,              // Cinza escuro
+  textMuted: [108, 117, 125] as const,      // Cinza médio
+  textLight: [155, 165, 175] as const,      // Cinza claro
+  background: [248, 250, 252] as const,     // Azul muito claro
   white: [255, 255, 255] as const,
-  gray: [220, 220, 220] as const,
-  lightGray: [245, 245, 245] as const
+  gray: [220, 225, 230] as const,
+  lightGray: [240, 244, 248] as const
 };
 
+// Função para desenhar header premium
+function drawPremiumHeader(doc: jsPDF, title: string, pageWidth: number, bgColor: typeof colors.primary) {
+  doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
+  doc.rect(0, 0, pageWidth, 30, 'F');
+
+  // Linha decorativa abaixo
+  doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.setLineWidth(3);
+  doc.line(0, 30, pageWidth, 30);
+
+  doc.setFontSize(18);
+  doc.setTextColor(colors.white[0], colors.white[1], colors.white[2]);
+  doc.setFont('helvetica', 'bold');
+  doc.text(title, pageWidth / 2, 20, { align: 'center' });
+}
+
+// Função para desenhar logo premium
+function drawPremiumLogo(doc: jsPDF, x: number, y: number) {
+  // Logo background
+  doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
+  doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.setLineWidth(2);
+  doc.roundedRect(x, y, 80, 35, 6, 6, 'FD');
+
+  // Logo mark - formas modernas
+  const markX = x + 12;
+  const markY = y + 8;
+
+  // Desenhar um símbolo de vendas moderno (piramide/funil elegante)
+  doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+
+  // Topo
+  doc.rect(markX + 4, markY, 8, 4, 'F');
+  // Meio
+  doc.rect(markX + 2, markY + 5, 12, 4, 'F');
+  // Base
+  doc.rect(markX, markY + 10, 16, 4, 'F');
+
+  // Ponto final elegante
+  doc.setFillColor(colors.accentDark[0], colors.accentDark[1], colors.accentDark[2]);
+  doc.circle(markX + 8, markY + 18, 2, 'F');
+
+  // Texto
+  doc.setFontSize(11);
+  doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+  doc.setFont('helvetica', 'bold');
+  doc.text('MASTER', markX + 20, markY + 8);
+
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('VENDAS', markX + 20, markY + 17);
+
+  // Tagline
+  doc.setFontSize(6);
+  doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.setFont('helvetica', 'normal');
+  doc.text('EXCELÊNCIA EM VENDAS', x + 12, y + 32);
+}
+
+// Função para desenhar shadow
+function drawShadow(doc: jsPDF, x: number, y: number, w: number, h: number, radius: number) {
+  doc.setFillColor(0, 0, 0);
+  doc.setGlobalAlpha(0.05);
+  doc.roundedRect(x + 1, y + 2, w, h, radius, radius, 'F');
+  doc.setGlobalAlpha(1);
+}
+
 function drawRadarChart(
-  doc: jsPDF, 
-  scores: Record<string, number>, 
-  categories: MaturityCategory[], 
-  x: number, 
-  y: number, 
+  doc: jsPDF,
+  scores: Record<string, number>,
+  categories: MaturityCategory[],
+  x: number,
+  y: number,
   radius: number
 ) {
   const centerX = x + radius;
   const centerY = y + radius;
   const numCategories = categories.length;
-  
-  // Desenhar círculos concêntricos (níveis 1-5)
+
+  // Desenhar círculos concêntricos
   for (let level = 1; level <= 5; level++) {
     const levelRadius = (radius * level) / 5;
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.5);
+    doc.setDrawColor(colors.gray[0], colors.gray[1], colors.gray[2]);
+    doc.setLineWidth(0.3);
     doc.circle(centerX, centerY, levelRadius, 'S');
-    
-    // Adicionar labels dos níveis
-    if (level === 5) {
-      doc.setFontSize(8);
-      doc.setTextColor(colors.textMuted[0], colors.textMuted[1], colors.textMuted[2]);
-      doc.text(level.toString(), centerX + levelRadius + 2, centerY + 1);
-    }
   }
-  
+
   // Desenhar linhas dos eixos
-  doc.setDrawColor(180, 180, 180);
+  doc.setDrawColor(colors.lightGray[0], colors.lightGray[1], colors.lightGray[2]);
   doc.setLineWidth(0.5);
-  
+
   const points: { x: number; y: number; label: string; score: number }[] = [];
-  
+
   categories.forEach((category, index) => {
     const angle = (index * 2 * Math.PI) / numCategories - Math.PI / 2;
     const endX = centerX + radius * Math.cos(angle);
     const endY = centerY + radius * Math.sin(angle);
-    
-    // Linha do eixo
+
     doc.line(centerX, centerY, endX, endY);
-    
-    // Ponto dos dados
+
     const score = scores[category.id] || 0;
     const dataRadius = (radius * score) / 5;
     const dataX = centerX + dataRadius * Math.cos(angle);
     const dataY = centerY + dataRadius * Math.sin(angle);
-    
+
     points.push({ x: dataX, y: dataY, label: category.name, score });
-    
-    // Labels das categorias - apenas números próximos ao eixo
-    const labelDistance = radius + 5; // Muito próximo ao eixo
+
+    // Labels
+    const labelDistance = radius + 6;
     const labelX = centerX + labelDistance * Math.cos(angle);
     const labelY = centerY + labelDistance * Math.sin(angle);
-    
-    doc.setFontSize(10);
+
+    doc.setFontSize(9);
     doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
     doc.setFont('helvetica', 'bold');
-    
-    // Número da categoria correspondente à numeração da tabela
-    const categoryNumber = (index + 1).toString();
-    
-    // Posicionamento centrado próximo ao eixo radial
-    doc.text(categoryNumber, labelX, labelY, { align: 'center' });
+    doc.text((index + 1).toString(), labelX, labelY, { align: 'center' });
   });
-  
-  // Desenhar linhas conectando os pontos
+
+  // Desenhar polígono
   if (points.length > 0) {
     doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-    doc.setLineWidth(2);
+    doc.setLineWidth(2.5);
     for (let i = 0; i < points.length; i++) {
       const current = points[i];
       const next = points[(i + 1) % points.length];
       doc.line(current.x, current.y, next.x, next.y);
     }
-    
-    // Desenhar pontos
+
+    // Preenchimento semi-transparente
+    doc.setFillColor(colors.accentLight[0], colors.accentLight[1], colors.accentLight[2]);
+    doc.setGlobalAlpha(0.3);
+    const pathPoints = points.map(p => [p.x, p.y]);
+    doc.circle(centerX, centerY, radius, 'F');
+    doc.setGlobalAlpha(1);
+
+    // Pontos
+    doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
     points.forEach(point => {
-      doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-      doc.circle(point.x, point.y, 2, 'F');
+      doc.circle(point.x, point.y, 2.5, 'F');
     });
   }
 }
@@ -114,383 +175,382 @@ export const generateMaturityReport = (
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
-  
-  // Configurar fontes padrão
-  doc.setFont('helvetica');
-  
-  // === PÁGINA 1: CAPA ===
-  
-  // Fundo gradient suave (cores da Mastervendas)
+
+  // === PÁGINA 1: CAPA PREMIUM ===
+
+  // Background gradient
   doc.setFillColor(colors.background[0], colors.background[1], colors.background[2]);
   doc.rect(0, 0, pageWidth, pageHeight, 'F');
-  
-  // Fundo limpo sem elementos decorativos
-  
-  // Logo Mastervendas oficial
-  const logoWidth = 100;
-  const logoHeight = 40;
-  const logoX = pageWidth/2 - logoWidth/2;
-  const logoY = 20;
-  
-  // Adicionar a logomarca oficial da Mastervendas
-  try {
-    // Note: Em uma implementação real, você precisaria carregar a imagem
-    // Por enquanto, vamos criar um placeholder que representa a logo oficial
-    doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
-    doc.roundedRect(logoX, logoY, logoWidth, logoHeight, 8, 8, 'F');
-    doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-    doc.setLineWidth(1);
-    doc.roundedRect(logoX, logoY, logoWidth, logoHeight, 8, 8, 'S');
-    
-    // Símbolo do funil da Mastervendas (baseado na logo oficial)
-    const symbolX = logoX + 15;
-    const symbolY = logoY + 8;
-    
-    // Desenhar funil estilizado
-    doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-    doc.rect(symbolX, symbolY, 12, 3, 'F');
-    doc.rect(symbolX + 1, symbolY + 4, 10, 3, 'F');
-    doc.rect(symbolX + 2, symbolY + 8, 8, 3, 'F');
-    doc.rect(symbolX + 3, symbolY + 12, 6, 3, 'F');
-    doc.rect(symbolX + 4, symbolY + 16, 4, 3, 'F');
-    
-    // Texto MASTERVENDAS
-    doc.setFontSize(14);
-    doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-    doc.setFont('helvetica', 'bold');
-    doc.text('MASTERVENDAS', symbolX + 20, symbolY + 8);
-    
-    doc.setFontSize(6);
-    doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-    doc.setFont('helvetica', 'normal');
-    doc.text('EXCELÊNCIA EM VENDAS', symbolX + 20, symbolY + 16);
-  } catch (error) {
-    console.error('Erro ao carregar logo:', error);
-  }
-  
-  // Título principal com fonte menor
-  doc.setFontSize(22);
+
+  // Elemento decorativo no topo
+  doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.setGlobalAlpha(0.08);
+  doc.rect(0, 0, pageWidth, 120, 'F');
+  doc.setGlobalAlpha(1);
+
+  // Logo
+  drawPremiumLogo(doc, pageWidth / 2 - 40, 15);
+
+  // Título premium
+  doc.setFontSize(32);
   doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('DIAGNÓSTICO DE', pageWidth/2, 100, { align: 'center' });
-  doc.text('MATURIDADE EM', pageWidth/2, 120, { align: 'center' });
-  doc.text('VENDAS B2B', pageWidth/2, 140, { align: 'center' });
-  
-  // Subtítulo
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'normal');
+  doc.text('DIAGNÓSTICO DE MATURIDADE', pageWidth / 2, 90, { align: 'center' });
+
+  doc.setFontSize(32);
+  doc.text('EM VENDAS B2B', pageWidth / 2, 110, { align: 'center' });
+
+  // Subtítulo elegante
+  doc.setFontSize(13);
   doc.setTextColor(colors.textMuted[0], colors.textMuted[1], colors.textMuted[2]);
-  doc.text('Análise completa do nível de maturidade da sua empresa', pageWidth/2, 155, { align: 'center' });
-  
-  // Nível atual - Card com cores suaves
-  const cardY = 180;
-  doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.roundedRect(25, cardY, pageWidth - 50, 65, 12, 12, 'F');
-  
-  // Card interno branco
+  doc.setFont('helvetica', 'normal');
+  doc.text('Análise Completa do Nível de Maturidade da sua Empresa', pageWidth / 2, 130, { align: 'center' });
+
+  // Card com resultado - Design premium
+  const cardY = 155;
+  drawShadow(doc, 20, cardY, pageWidth - 40, 70, 10);
+
   doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
-  doc.roundedRect(30, cardY + 5, pageWidth - 60, 55, 8, 8, 'F');
-  
-  doc.setFontSize(14);
+  doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.setLineWidth(1.5);
+  doc.roundedRect(20, cardY, pageWidth - 40, 70, 10, 10, 'FD');
+
+  // Barra superior colorida
+  doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.rect(20, cardY, pageWidth - 40, 4, 'F');
+
+  doc.setFontSize(12);
   doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('SEU NÍVEL ATUAL', pageWidth/2, cardY + 18, { align: 'center' });
-  
-  doc.setFontSize(18);
+  doc.text('SEU NÍVEL ATUAL', pageWidth / 2, cardY + 18, { align: 'center' });
+
+  doc.setFontSize(20);
   doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-  doc.text(`NÍVEL ${currentLevel.id} - ${currentLevel.name.toUpperCase()}`, pageWidth/2, cardY + 35, { align: 'center' });
-  
+  doc.setFont('helvetica', 'bold');
+  doc.text(`NÍVEL ${currentLevel.id} • ${currentLevel.name.toUpperCase()}`, pageWidth / 2, cardY + 35, {
+    align: 'center',
+  });
+
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(colors.textMuted[0], colors.textMuted[1], colors.textMuted[2]);
+  doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
   const description = doc.splitTextToSize(currentLevel.description, pageWidth - 80);
-  doc.text(description, pageWidth/2, cardY + 50, { align: 'center' });
-  
-  // Data do relatório
+  doc.text(description, pageWidth / 2, cardY + 50, { align: 'center' });
+
+  // Data e footer
   doc.setFontSize(9);
-  doc.setTextColor(colors.textMuted[0], colors.textMuted[1], colors.textMuted[2]);
-  doc.text(`Relatório gerado em: ${new Date().toLocaleDateString('pt-BR')}`, pageWidth/2, 270, { align: 'center' });
-  
-  // === PÁGINA 2: GRÁFICO DE RADAR E ANÁLISE ===
+  doc.setTextColor(colors.textLight[0], colors.textLight[1], colors.textLight[2]);
+  doc.text(`Relatório gerado em ${new Date().toLocaleDateString('pt-BR')}`, pageWidth / 2, pageHeight - 15, {
+    align: 'center',
+  });
+
+  // === PÁGINA 2: RADAR E ANÁLISE ===
   doc.addPage();
-  
-  // Header da página com fonte menor
-  doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-  doc.rect(0, 0, pageWidth, 25, 'F');
-  doc.setFontSize(16);
-  doc.setTextColor(colors.white[0], colors.white[1], colors.white[2]);
-  doc.setFont('helvetica', 'bold');
-  doc.text('RADAR DE MATURIDADE', pageWidth/2, 17, { align: 'center' });
-  
-  // Fundo para o gráfico mais compacto
+
+  drawPremiumHeader(doc, 'RADAR DE MATURIDADE', pageWidth, colors.primary);
+
+  // Background sutil
   doc.setFillColor(colors.lightGray[0], colors.lightGray[1], colors.lightGray[2]);
-  doc.roundedRect(15, 35, 90, 100, 8, 8, 'F');
-  
-  // Gráfico de Radar com melhor espaçamento para labels
-  const radarY = 40;
-  const radarRadius = 30; // Reduzido para dar mais espaço aos labels
-  drawRadarChart(doc, scores, categories, 25, radarY, radarRadius);
-  
-  // Legenda do gráfico
-  doc.setFontSize(9);
-  doc.setTextColor(colors.textMuted[0], colors.textMuted[1], colors.textMuted[2]);
-  doc.setFont('helvetica', 'italic');
-  doc.text('Estrutura Organizacional', 20, 40);
-  
-  // Análise por categoria - lado direito com numeração
+  doc.roundedRect(10, 40, pageWidth - 20, pageHeight - 50, 8, 8, 'F');
+
+  // Área do gráfico
+  doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
+  drawShadow(doc, 15, 45, 90, 110, 6);
+  doc.roundedRect(15, 45, 90, 110, 6, 6, 'F');
+
+  const radarRadius = 32;
+  drawRadarChart(doc, scores, categories, 25, 50, radarRadius);
+
+  // Análise por categoria - lado direito
   const analysisX = 115;
   doc.setFontSize(12);
   doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('ANÁLISE POR CATEGORIA', analysisX, 40);
+  doc.text('ANÁLISE POR CATEGORIA', analysisX, 50);
 
-  let currentY = 50;
+  let currentY = 58;
   categories.forEach((category, index) => {
     const score = scores[category.id] || 0;
-    const categoryNumber = index + 1;
-    
-    // Background alternado mais compacto
+
+    // Background alternado elegante
     if (index % 2 === 0) {
-      doc.setFillColor(colors.lightGray[0], colors.lightGray[1], colors.lightGray[2]);
-      doc.rect(analysisX - 5, currentY - 6, 85, 10, 'F');
+      doc.setFillColor(colors.background[0], colors.background[1], colors.background[2]);
+      doc.rect(analysisX - 3, currentY - 5, pageWidth - analysisX - 17, 9, 'F');
     }
-    
-    // Número da categoria
+
+    // Número
     doc.setFontSize(8);
     doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
     doc.setFont('helvetica', 'bold');
-    doc.text(`${categoryNumber}.`, analysisX, currentY);
-    
-    // Nome da categoria menor
+    doc.text(`${index + 1}.`, analysisX, currentY);
+
+    // Nome da categoria
     doc.setFontSize(8);
     doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
-    doc.setFont('helvetica', 'bold');
-    const categoryName = category.name.length > 16 ? 
-      category.name.substring(0, 16) + '...' : category.name;
-    doc.text(categoryName, analysisX + 12, currentY);
-    
-    // Score menor
-    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    const categoryName = category.name.length > 18 ? category.name.substring(0, 18) + '...' : category.name;
+    doc.text(categoryName, analysisX + 10, currentY);
+
+    // Score
+    doc.setFontSize(8);
     doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
     doc.setFont('helvetica', 'bold');
-    doc.text(`${score.toFixed(1)}/5`, analysisX + 55, currentY);
-    
-    // Barra de progresso menor
-    const barWidth = 20;
-    const barHeight = 3;
+    doc.text(`${score.toFixed(1)}/5`, pageWidth - 22, currentY);
+
+    // Barra de progresso elegante
+    const barWidth = 15;
+    const barHeight = 2.5;
     doc.setFillColor(colors.gray[0], colors.gray[1], colors.gray[2]);
-    doc.roundedRect(analysisX, currentY + 1, barWidth, barHeight, 1, 1, 'F');
+    doc.roundedRect(analysisX + 10, currentY + 2, barWidth, barHeight, 1, 1, 'F');
     doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-    doc.roundedRect(analysisX, currentY + 1, (barWidth * score) / 5, barHeight, 1, 1, 'F');
-    
-    currentY += 11;
+    doc.roundedRect(analysisX + 10, currentY + 2, (barWidth * score) / 5, barHeight, 1, 1, 'F');
+
+    currentY += 10;
   });
-  
-  // Box de impacto mais compacto - movido para baixo
-  const impactY = 200;
-  doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-  doc.roundedRect(15, impactY, pageWidth - 30, 40, 8, 8, 'F');
-  
-  // Fundo interno para destacar
+
+  // Box de impacto - Premium
+  const impactY = 175;
+  drawShadow(doc, 15, impactY, pageWidth - 30, 50, 8);
+
   doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.roundedRect(20, impactY + 3, pageWidth - 40, 34, 6, 6, 'F');
-  
+  doc.roundedRect(15, impactY, pageWidth - 30, 50, 8, 8, 'F');
+
   doc.setFontSize(11);
   doc.setTextColor(colors.white[0], colors.white[1], colors.white[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('IMPACTO NA EFICIÊNCIA DE VENDAS', pageWidth/2, impactY + 15, { align: 'center' });
-  
-  doc.setFontSize(14);
-  doc.text(`${currentLevel.salesEfficiency}x`, pageWidth/2 - 30, impactY + 28, { align: 'center' });
-  doc.text(`${currentLevel.revenueIncrease}`, pageWidth/2 + 30, impactY + 28, { align: 'center' });
-  
-  doc.setFontSize(7);
-  doc.setTextColor(255, 255, 255, 0.9);
-  doc.text('Multiplicador de Eficiência', pageWidth/2 - 30, impactY + 35, { align: 'center' });
-  doc.text('Aumento de Receita', pageWidth/2 + 30, impactY + 35, { align: 'center' });
-  
+  doc.text('IMPACTO NA EFICIÊNCIA DE VENDAS', pageWidth / 2, impactY + 12, { align: 'center' });
+
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${currentLevel.salesEfficiency}x`, pageWidth / 2 - 35, impactY + 32, { align: 'center' });
+  doc.text(`+${currentLevel.revenueIncrease}`, pageWidth / 2 + 35, impactY + 32, { align: 'center' });
+
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Multiplicador de\nEficiência', pageWidth / 2 - 35, impactY + 40, { align: 'center' });
+  doc.text('Aumento de\nReceita', pageWidth / 2 + 35, impactY + 40, { align: 'center' });
+
   // === PÁGINA 3: RECOMENDAÇÕES ===
   doc.addPage();
-  
-  // Header
-  doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-  doc.rect(0, 0, pageWidth, 25, 'F');
-  doc.setFontSize(18);
-  doc.setTextColor(colors.white[0], colors.white[1], colors.white[2]);
-  doc.setFont('helvetica', 'bold');
-  
-  // Verificar se é nível 5 para ajustar o título
+
   const isLevel5 = currentLevel.id === 5;
-  const pageTitle = isLevel5 ? 'PARABÉNS PELA EXCELÊNCIA!' : 'RECOMENDAÇÕES PARA EVOLUÇÃO';
-  doc.text(pageTitle, pageWidth/2, 17, { align: 'center' });
-  
-  currentY = 45;
-  
+  drawPremiumHeader(
+    doc,
+    isLevel5 ? 'PARABÉNS PELA EXCELÊNCIA!' : 'RECOMENDAÇÕES PARA EVOLUÇÃO',
+    pageWidth,
+    colors.primary
+  );
+
+  currentY = 50;
+
   if (isLevel5) {
     // Mensagem especial para nível 5
+    drawShadow(doc, 20, currentY + 20, pageWidth - 40, 140, 10);
+
     doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
-    doc.roundedRect(20, currentY, pageWidth - 40, 120, 10, 10, 'F');
-    doc.setDrawColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
     doc.setLineWidth(2);
-    doc.roundedRect(20, currentY, pageWidth - 40, 120, 10, 10, 'S');
-    
-    // Emoji de troféu (representado por texto especial)
-    doc.setFontSize(30);
-    doc.setTextColor(255, 215, 0); // Dourado
-    doc.text('🏆', pageWidth/2, currentY + 35, { align: 'center' });
-    
+    doc.roundedRect(20, currentY + 20, pageWidth - 40, 140, 10, 10, 'FD');
+
+    // Barra superior
+    doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+    doc.rect(20, currentY + 20, pageWidth - 40, 5, 'F');
+
+    // Troféu (caractere especial)
+    doc.setFontSize(40);
+    doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+    doc.text('★', pageWidth / 2, currentY + 50, { align: 'center' });
+
     // Título
     doc.setFontSize(16);
     doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
     doc.setFont('helvetica', 'bold');
-    doc.text('EXCELÊNCIA EM VENDAS B2B ALCANÇADA!', pageWidth/2, currentY + 55, { align: 'center' });
-    
-    // Mensagem de congratulações
+    doc.text('EXCELÊNCIA EM VENDAS B2B ALCANÇADA!', pageWidth / 2, currentY + 65, { align: 'center' });
+
+    // Mensagem
     doc.setFontSize(10);
     doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
     doc.setFont('helvetica', 'normal');
-    const congratsText = [
-      'Sua empresa atingiu o mais alto nível de maturidade em vendas B2B!',
-      'Parabéns por construir uma operação de vendas de classe mundial.'
-    ];
-    congratsText.forEach((line, index) => {
-      doc.text(line, pageWidth/2, currentY + 70 + (index * 12), { align: 'center' });
-    });
-    
-    // Seção de foco na liderança
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-    doc.text('FOCO NA LIDERANÇA DE MERCADO:', pageWidth/2, currentY + 100, { align: 'center' });
-    
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
-    const leadershipText = [
-      'Continue mantendo este padrão de excelência para consolidar sua',
-      'posição como líder de mercado e referência no setor.',
-      'Sua operação está preparada para escalar e dominar novos mercados.'
-    ];
-    leadershipText.forEach((line, index) => {
-      doc.text(line, pageWidth/2, currentY + 115 + (index * 10), { align: 'center' });
-    });
+    doc.text(
+      [
+        'Sua empresa atingiu o mais alto nível de maturidade em vendas B2B!',
+        'Parabéns por construir uma operação de vendas de classe mundial.',
+        '',
+        'Continue mantendo este padrão de excelência para consolidar sua posição',
+        'como líder de mercado e referência no setor.',
+      ],
+      pageWidth / 2,
+      currentY + 80,
+      { align: 'center' }
+    );
   } else {
-    // Recomendações normais para outros níveis
+    // Recomendações normais
     recommendations.forEach((rec, index) => {
-      // Card da recomendação
-      const cardHeight = 40;
-      doc.setFillColor(248, 250, 252); // Light background
-      doc.roundedRect(20, currentY, pageWidth - 40, cardHeight, 5, 5, 'F');
-      doc.setDrawColor(226, 232, 240);
-      doc.roundedRect(20, currentY, pageWidth - 40, cardHeight, 5, 5, 'S');
-      
-      // Número da recomendação
+      drawShadow(doc, 20, currentY, pageWidth - 40, 42, 6);
+
+      doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
+      doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+      doc.setLineWidth(1);
+      doc.roundedRect(20, currentY, pageWidth - 40, 42, 6, 6, 'FD');
+
+      // Número circular elegante
       doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-      doc.circle(30, currentY + 10, 5, 'F');
+      doc.circle(33, currentY + 10, 5.5, 'F');
       doc.setFontSize(10);
       doc.setTextColor(colors.white[0], colors.white[1], colors.white[2]);
       doc.setFont('helvetica', 'bold');
-      doc.text((index + 1).toString(), 30, currentY + 12, { align: 'center' });
-      
-      // Título da categoria
-      doc.setFontSize(12);
+      doc.text((index + 1).toString(), 33, currentY + 11.5, { align: 'center' });
+
+      // Título
+      doc.setFontSize(11);
       doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
       doc.setFont('helvetica', 'bold');
-      doc.text(rec.category, 40, currentY + 12);
-      
-      // Score atual
-      doc.setFontSize(10);
-      doc.setTextColor(colors.textMuted[0], colors.textMuted[1], colors.textMuted[2]);
-      doc.text(`Score atual: ${rec.currentScore.toFixed(1)}/5`, 40, currentY + 22);
-      
-      // Sugestão
+      doc.text(rec.category, 45, currentY + 11);
+
+      // Score
       doc.setFontSize(9);
-      doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+      doc.setTextColor(colors.textMuted[0], colors.textMuted[1], colors.textMuted[2]);
       doc.setFont('helvetica', 'normal');
-      const suggestion = doc.splitTextToSize(rec.suggestion, pageWidth - 80);
-      doc.text(suggestion, 40, currentY + 30);
-      
-      currentY += 50;
+      doc.text(`Score: ${rec.currentScore.toFixed(1)}/5`, 45, currentY + 19);
+
+      // Sugestão
+      doc.setFontSize(8.5);
+      doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+      const suggestion = doc.splitTextToSize(rec.suggestion, pageWidth - 85);
+      doc.text(suggestion, 45, currentY + 27);
+
+      currentY += 48;
     });
   }
-  
-  // CTA para o Ebook - posicionado abaixo das recomendações
-  const ebookY = currentY + 20;
-  
-  // Fundo do CTA com gradiente
+
+  // CTA Ebook - Premium
+  const ebookY = currentY + 10;
+  drawShadow(doc, 20, ebookY, pageWidth - 40, 55, 8);
+
   doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.roundedRect(20, ebookY, pageWidth - 40, 55, 10, 10, 'F');
-  
-  // Fundo interno branco
+  doc.roundedRect(20, ebookY, pageWidth - 40, 55, 8, 8, 'F');
+
+  // Barra diagonal decorativa
+  doc.setFillColor(colors.accentDark[0], colors.accentDark[1], colors.accentDark[2]);
+  doc.rect(20, ebookY, 5, 55, 'F');
+
   doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
-  doc.roundedRect(25, ebookY + 5, pageWidth - 50, 45, 8, 8, 'F');
-  
-  // Ícone do livro (representação textual)
+  doc.roundedRect(30, ebookY + 8, pageWidth - 60, 40, 5, 5, 'F');
+
+  // Ícone (representado por símbolo)
   doc.setFontSize(16);
   doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.text('📚', 35, ebookY + 20);
-  
-  // Título do CTA
-  doc.setFontSize(12);
+  doc.text('📖', 40, ebookY + 22);
+
+  doc.setFontSize(11);
   doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('BAIXE GRÁTIS: EBOOK COMPLETO', 50, ebookY + 18);
-  
-  // Título do ebook
-  doc.setFontSize(10);
+  doc.text('BAIXE GRÁTIS: EBOOK COMPLETO', 55, ebookY + 18);
+
+  doc.setFontSize(9);
   doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('5 Níveis de Maturidade em Vendas', 50, ebookY + 28);
-  
-  // Descrição
+  doc.text('5 Níveis de Maturidade em Vendas', 55, ebookY + 27);
+
   doc.setFontSize(8);
   doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
   doc.setFont('helvetica', 'normal');
-  doc.text('Guia completo para acelerar sua evolução comercial', 50, ebookY + 36);
-  
-  // Link de acesso
+  doc.text('Guia completo para acelerar sua evolução comercial', 55, ebookY + 34);
+
   doc.setFontSize(8);
-  doc.setTextColor(0, 100, 200); // Azul para link
+  doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
   doc.setFont('helvetica', 'underline');
-  doc.text('Acesse gratuitamente: bit.ly/ebook-maturidade-vendas', 50, ebookY + 44);
-  
-  // === PÁGINA 4: CALL TO ACTION ===
+  doc.text('bit.ly/ebook-maturidade-vendas', 55, ebookY + 42);
+
+  // === PÁGINA 4: CTA FINAL ===
   doc.addPage();
-  
-  // Background gradient
+
+  // Background elegante com degradê
   doc.setFillColor(colors.background[0], colors.background[1], colors.background[2]);
   doc.rect(0, 0, pageWidth, pageHeight, 'F');
-  
+
+  // Elemento decorativo superior
+  doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.setGlobalAlpha(0.1);
+  doc.rect(0, 0, pageWidth, 80, 'F');
+  doc.setGlobalAlpha(1);
+
   // Título principal
-  doc.setFontSize(24);
+  doc.setFontSize(26);
   doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('PRONTO PARA EVOLUIR', pageWidth/2, 80, { align: 'center' });
-  doc.text('AO PRÓXIMO NÍVEL?', pageWidth/2, 100, { align: 'center' });
-  
-  // Card de contato
+  doc.text('PRONTO PARA EVOLUIR', pageWidth / 2, 70, { align: 'center' });
+  doc.text('AO PRÓXIMO NÍVEL?', pageWidth / 2, 95, { align: 'center' });
+
+  // Card de contato premium
+  drawShadow(doc, 25, 120, pageWidth - 50, 100, 10);
+
   doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
-  doc.roundedRect(30, 120, pageWidth - 60, 80, 10, 10, 'F');
-  
-  doc.setFontSize(16);
+  doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.setLineWidth(1.5);
+  doc.roundedRect(25, 120, pageWidth - 50, 100, 10, 10, 'FD');
+
+  // Barra superior
+  doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.rect(25, 120, pageWidth - 50, 4, 'F');
+
+  doc.setFontSize(14);
   doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('A MASTERVENDAS pode ajudar sua empresa', pageWidth/2, 140, { align: 'center' });
-  doc.text('a alcançar a excelência em vendas B2B', pageWidth/2, 155, { align: 'center' });
-  
-  doc.setFontSize(12);
+  doc.text('A MASTERVENDAS pode ajudar sua empresa', pageWidth / 2, 145, { align: 'center' });
+  doc.text('a alcançar a excelência em vendas B2B', pageWidth / 2, 158, { align: 'center' });
+
+  doc.setFontSize(11);
   doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
   doc.setFont('helvetica', 'normal');
-  doc.text('Entre em contato conosco e descubra como podemos', pageWidth/2, 175, { align: 'center' });
-  doc.text('acelerar a evolução da sua área de vendas', pageWidth/2, 185, { align: 'center' });
-  
+  doc.text('Entre em contato conosco e descubra como podemos', pageWidth / 2, 177, { align: 'center' });
+  doc.text('acelerar a evolução da sua área de vendas', pageWidth / 2, 188, { align: 'center' });
+
   // Informações de contato
+  const contactY = 210;
   doc.setFontSize(10);
   doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('📧 contato@mastervendas.com.br', pageWidth/2, 220, { align: 'center' });
-  doc.text('📱 (11) 99999-9999', pageWidth/2, 235, { align: 'center' });
-  doc.text('🌐 www.mastervendas.com.br', pageWidth/2, 250, { align: 'center' });
-  
+
+  // Email
+  doc.text('E-MAIL', pageWidth / 2 - 40, contactY);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text('contato@mastervendas.com.br', pageWidth / 2 - 40, contactY + 8);
+
+  // Telefone
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+  doc.text('TELEFONE', pageWidth / 2, contactY);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text('(11) 99999-9999', pageWidth / 2, contactY + 8);
+
+  // Website
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+  doc.text('WEBSITE', pageWidth / 2 + 40, contactY);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text('www.mastervendas.com.br', pageWidth / 2 + 40, contactY + 8);
+
+  // Linha decorativa
+  doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+  doc.setLineWidth(1.5);
+  doc.line(30, contactY - 5, pageWidth - 30, contactY - 5);
+
+  // Footer elegante
+  doc.setFontSize(9);
+  doc.setTextColor(colors.textLight[0], colors.textLight[1], colors.textLight[2]);
+  doc.setFont('helvetica', 'italic');
+  doc.text(
+    'Este diagnóstico foi gerado especialmente para sua empresa. Utilizamos metodologia baseada em best practices de vendas B2B.',
+    pageWidth / 2,
+    pageHeight - 15,
+    { align: 'center' }
+  );
+
   return doc;
 };
