@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Search, Download, Eye, Phone, Mail, Building, User } from "lucide-react";
+import { Search, Download, Eye, Phone, Mail, Building, User, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -115,6 +115,44 @@ export default function Admin() {
     link.click();
 
     toast.success("Dados exportados com sucesso!");
+  };
+
+  const handleClearAllData = async () => {
+    const confirmDelete = window.confirm(
+      `⚠️ Tem certeza que deseja deletar TODOS os ${leads.length} leads?\n\nEsta ação é irreversível e vai deletar também:\n- Respostas do questionário\n- Resultados de maturidade\n\nDigite "SIM" para confirmar.`
+    );
+
+    if (!confirmDelete) return;
+
+    const userInput = prompt("Digite 'SIM' para confirmar a exclusão de todos os dados:");
+
+    if (userInput !== "SIM") {
+      toast.error("Exclusão cancelada");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Deletar todos os leads (isso vai deletar em cascata respostas e resultados)
+      const { error } = await supabase
+        .from('leads')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+
+      if (error) {
+        toast.error("Erro ao deletar dados");
+        return;
+      }
+
+      toast.success("Todos os dados foram deletados com sucesso!");
+      await fetchLeads();
+    } catch (error) {
+      console.error("Erro:", error);
+      toast.error("Erro inesperado ao deletar dados");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getMaturityLevelBadge = (level: number) => {
@@ -244,6 +282,15 @@ export default function Admin() {
           <Button onClick={exportToCSV} className="flex items-center gap-2">
             <Download className="w-4 h-4" />
             Exportar CSV
+          </Button>
+          <Button
+            onClick={handleClearAllData}
+            variant="destructive"
+            className="flex items-center gap-2"
+            disabled={leads.length === 0}
+          >
+            <Trash2 className="w-4 h-4" />
+            Limpar Todos os Dados
           </Button>
         </div>
 
