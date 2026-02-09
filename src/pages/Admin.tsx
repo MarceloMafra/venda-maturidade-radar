@@ -341,13 +341,24 @@ export default function Admin() {
                         }
                       </TableCell>
                       <TableCell>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setSelectedLead(lead)}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => navigate(`/relatorio/${lead.id}`)}
+                            title="Ver relatório detalhado"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setSelectedLead(lead)}
+                            title="Ver detalhes"
+                          >
+                            📋
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
