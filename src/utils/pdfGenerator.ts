@@ -84,12 +84,11 @@ function drawFallbackLogo(doc: jsPDF, x: number, y: number) {
   doc.text('EXCELÊNCIA EM VENDAS', x + 15, y + 40);
 }
 
-// Função para desenhar shadow
+// Função para desenhar shadow (simples)
 function drawShadow(doc: jsPDF, x: number, y: number, w: number, h: number, radius: number) {
-  doc.setFillColor(0, 0, 0);
-  doc.setGlobalAlpha(0.05);
+  // Usar cor muito clara para simular sombra
+  doc.setFillColor(200, 200, 200);
   doc.roundedRect(x + 1, y + 2, w, h, radius, radius, 'F');
-  doc.setGlobalAlpha(1);
 }
 
 function drawRadarChart(
@@ -153,12 +152,7 @@ function drawRadarChart(
       doc.line(current.x, current.y, next.x, next.y);
     }
 
-    // Preenchimento semi-transparente
-    doc.setFillColor(colors.accentLight[0], colors.accentLight[1], colors.accentLight[2]);
-    doc.setGlobalAlpha(0.3);
-    const pathPoints = points.map(p => [p.x, p.y]);
-    doc.circle(centerX, centerY, radius, 'F');
-    doc.setGlobalAlpha(1);
+    // Área de preenchimento (removido efeito de transparência por limitação de jsPDF)
 
     // Pontos
     doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
@@ -189,10 +183,8 @@ export const generateMaturityReport = (
   doc.rect(0, 0, pageWidth, pageHeight, 'F');
 
   // Elemento decorativo no topo
-  doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.setGlobalAlpha(0.08);
+  doc.setFillColor(colors.accentLight[0], colors.accentLight[1], colors.accentLight[2]);
   doc.rect(0, 0, pageWidth, 120, 'F');
-  doc.setGlobalAlpha(1);
 
   // Logo
   drawPremiumLogo(doc, pageWidth / 2 - 45, 15);
@@ -476,10 +468,8 @@ export const generateMaturityReport = (
   doc.rect(0, 0, pageWidth, pageHeight, 'F');
 
   // Elemento decorativo superior
-  doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
-  doc.setGlobalAlpha(0.1);
+  doc.setFillColor(colors.accentLight[0], colors.accentLight[1], colors.accentLight[2]);
   doc.rect(0, 0, pageWidth, 80, 'F');
-  doc.setGlobalAlpha(1);
 
   // Título principal
   doc.setFontSize(26);
