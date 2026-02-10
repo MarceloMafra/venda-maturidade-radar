@@ -60,7 +60,14 @@ export function LeadCaptureForm({ isOpen, onClose, onSubmit, answers, scores }: 
         .single();
 
       if (leadError) {
-        toast.error("Erro ao salvar dados. Tente novamente.");
+        console.error("Erro ao salvar lead:", leadError);
+        toast.error(`Erro ao salvar dados: ${leadError.message || "Tente novamente."}`);
+        return;
+      }
+
+      if (!leadData) {
+        console.error("Nenhum dado retornado após inserir lead");
+        toast.error("Erro: Nenhum dado retornado. Tente novamente.");
         return;
       }
 
@@ -80,6 +87,9 @@ export function LeadCaptureForm({ isOpen, onClose, onSubmit, answers, scores }: 
 
       if (responsesError) {
         console.error("Erro ao salvar respostas:", responsesError);
+        toast.warning("Aviso: Respostas não foram salvas. Continuando...");
+      } else {
+        console.log("Respostas salvas com sucesso");
       }
 
       // Calcular nível de maturidade
