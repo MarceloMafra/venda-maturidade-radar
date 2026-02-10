@@ -35,13 +35,44 @@ function drawPremiumHeader(doc: jsPDF, title: string, pageWidth: number, bgColor
   doc.text(title, pageWidth / 2, 20, { align: 'center' });
 }
 
-// Função para desenhar logo premium
-function drawPremiumLogo(doc: jsPDF, x: number, y: number) {
+// Função para desenhar logo premium com imagem oficial
+async function drawPremiumLogo(doc: jsPDF, x: number, y: number) {
+  try {
+    // Tentar carregar a logo oficial
+    const logoImg = new Image();
+    logoImg.src = '/logo-mastervendas.png';
+
+    // Usar imagem se disponível, senão usar fallback
+    const response = await fetch('/logo-mastervendas.png').catch(() => null);
+    if (response && response.ok) {
+      const blob = await response.blob();
+      const reader = new FileReader();
+      await new Promise((resolve) => {
+        reader.onload = () => {
+          const imgData = reader.result as string;
+          doc.addImage(imgData, 'PNG', x, y, 90, 45);
+          resolve(null);
+        };
+        reader.readAsDataURL(blob);
+      });
+    } else {
+      // Fallback: desenhar logo gerada
+      drawFallbackLogo(doc, x, y);
+    }
+  } catch (error) {
+    // Fallback se algo der errado
+    console.warn('Erro ao carregar logo, usando fallback:', error);
+    drawFallbackLogo(doc, x, y);
+  }
+}
+
+// Logo gerada como fallback
+function drawFallbackLogo(doc: jsPDF, x: number, y: number) {
   // Logo background
   doc.setFillColor(colors.white[0], colors.white[1], colors.white[2]);
   doc.setDrawColor(colors.accent[0], colors.accent[1], colors.accent[2]);
   doc.setLineWidth(2);
-  doc.roundedRect(x, y, 80, 35, 6, 6, 'FD');
+  doc.roundedRect(x, y, 90, 45, 6, 6, 'FD');
 
   // Logo mark - formas modernas
   const markX = x + 12;
@@ -62,20 +93,20 @@ function drawPremiumLogo(doc: jsPDF, x: number, y: number) {
   doc.circle(markX + 8, markY + 18, 2, 'F');
 
   // Texto
-  doc.setFontSize(11);
+  doc.setFontSize(12);
   doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
   doc.setFont('helvetica', 'bold');
-  doc.text('MASTER', markX + 20, markY + 8);
+  doc.text('MASTER', markX + 22, markY + 10);
 
-  doc.setFontSize(11);
+  doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
-  doc.text('VENDAS', markX + 20, markY + 17);
+  doc.text('VENDAS', markX + 22, markY + 20);
 
   // Tagline
   doc.setFontSize(6);
   doc.setTextColor(colors.accent[0], colors.accent[1], colors.accent[2]);
   doc.setFont('helvetica', 'normal');
-  doc.text('EXCELÊNCIA EM VENDAS', x + 12, y + 32);
+  doc.text('EXCELÊNCIA EM VENDAS', x + 15, y + 40);
 }
 
 // Função para desenhar shadow
@@ -162,7 +193,7 @@ function drawRadarChart(
   }
 }
 
-export const generateMaturityReport = (
+export const generateMaturityReport = async (
   scores: Record<string, number>,
   currentLevel: MaturityLevel,
   categories: MaturityCategory[],
@@ -189,7 +220,7 @@ export const generateMaturityReport = (
   doc.setGlobalAlpha(1);
 
   // Logo
-  drawPremiumLogo(doc, pageWidth / 2 - 40, 15);
+  await drawPremiumLogo(doc, pageWidth / 2 - 45, 15);
 
   // Título premium
   doc.setFontSize(32);
