@@ -128,39 +128,68 @@ export default function Resultado() {
 
   const handleLeadSubmit = async (leadData: any) => {
     try {
-      console.log('Iniciando geração de PDF...');
-      console.log('Dados do lead:', leadData);
-      console.log('Scores:', scores);
-      console.log('Current Level:', currentLevel);
+      console.log('========== INICIANDO GERAÇÃO DE PDF ==========');
+      console.log('1. Verificando dados do lead:', leadData);
+      console.log('2. Verificando scores:', scores);
+      console.log('3. Verificando currentLevel:', currentLevel);
+      console.log('4. Verificando maturityCategories:', maturityCategories);
+      console.log('5. Verificando recommendations:', recommendations);
+
+      if (!scores || Object.keys(scores).length === 0) {
+        throw new Error('Scores vazio ou nulo');
+      }
+
+      if (!currentLevel) {
+        throw new Error('Current level nulo');
+      }
+
+      if (!maturityCategories || maturityCategories.length === 0) {
+        throw new Error('Categories vazio');
+      }
+
+      console.log('✓ Todos os dados estão presentes');
 
       // Gerar o PDF
-      console.log('Chamando generateMaturityReport...');
-      const pdf = generateMaturityReport(scores, currentLevel, maturityCategories, recommendations);
+      console.log('6. Chamando generateMaturityReport...');
+      let pdf;
+      try {
+        pdf = generateMaturityReport(scores, currentLevel, maturityCategories, recommendations);
+        console.log('✓ PDF gerado com sucesso');
+      } catch (pdfError) {
+        console.error('✗ Erro ao gerar PDF:', pdfError);
+        throw new Error(`Erro ao gerar PDF: ${pdfError}`);
+      }
 
       if (!pdf) {
         throw new Error('Falha ao gerar PDF - resultado nulo');
       }
 
-      console.log('PDF gerado com sucesso, iniciando download...');
+      console.log('7. PDF object criado:', typeof pdf);
       const filename = `Relatorio-Maturidade-Vendas-B2B-${new Date().toISOString().split('T')[0]}.pdf`;
-      console.log('Nome do arquivo:', filename);
+      console.log('8. Nome do arquivo:', filename);
 
+      console.log('9. Tentando fazer download...');
       pdf.save(filename);
-
-      console.log('PDF salvo com sucesso!');
+      console.log('✓ PDF salvo com sucesso!');
+      console.log('========== FIM DA GERAÇÃO ==========');
 
       toast({
         title: "Relatório baixado com sucesso!",
         description: "O arquivo PDF foi salvo em seu dispositivo.",
       });
     } catch (error) {
+      console.log('========== ERRO NA GERAÇÃO ==========');
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('Erro ao gerar PDF:', error);
-      console.error('Mensagem de erro:', errorMessage);
+      const errorStack = error instanceof Error ? error.stack : '';
+
+      console.error('✗ Erro capturado:', error);
+      console.error('✗ Mensagem:', errorMessage);
+      console.error('✗ Stack:', errorStack);
+      console.log('========== FIM DO ERRO ==========');
 
       toast({
         title: "Erro ao gerar relatório",
-        description: `Erro: ${errorMessage}. Tente novamente.`,
+        description: errorMessage || "Erro desconhecido. Verifique o console (F12) para mais detalhes.",
         variant: "destructive"
       });
     }
