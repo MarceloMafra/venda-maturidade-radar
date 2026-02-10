@@ -128,22 +128,39 @@ export default function Resultado() {
 
   const handleLeadSubmit = async (leadData: any) => {
     try {
-      // Aqui você pode salvar os dados do lead se necessário
+      console.log('Iniciando geração de PDF...');
       console.log('Dados do lead:', leadData);
+      console.log('Scores:', scores);
+      console.log('Current Level:', currentLevel);
 
-      // Gerar e baixar o PDF
+      // Gerar o PDF
+      console.log('Chamando generateMaturityReport...');
       const pdf = generateMaturityReport(scores, currentLevel, maturityCategories, recommendations);
-      pdf.save(`Relatorio-Maturidade-Vendas-B2B-${new Date().toISOString().split('T')[0]}.pdf`);
-      
+
+      if (!pdf) {
+        throw new Error('Falha ao gerar PDF - resultado nulo');
+      }
+
+      console.log('PDF gerado com sucesso, iniciando download...');
+      const filename = `Relatorio-Maturidade-Vendas-B2B-${new Date().toISOString().split('T')[0]}.pdf`;
+      console.log('Nome do arquivo:', filename);
+
+      pdf.save(filename);
+
+      console.log('PDF salvo com sucesso!');
+
       toast({
         title: "Relatório baixado com sucesso!",
         description: "O arquivo PDF foi salvo em seu dispositivo.",
       });
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       console.error('Erro ao gerar PDF:', error);
+      console.error('Mensagem de erro:', errorMessage);
+
       toast({
         title: "Erro ao gerar relatório",
-        description: "Tente novamente em alguns instantes.",
+        description: `Erro: ${errorMessage}. Tente novamente.`,
         variant: "destructive"
       });
     }
