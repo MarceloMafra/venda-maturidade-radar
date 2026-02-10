@@ -132,7 +132,7 @@ export default function Resultado() {
       console.log('Dados do lead:', leadData);
 
       // Gerar e baixar o PDF
-      const pdf = await generateMaturityReport(scores, currentLevel, maturityCategories, recommendations);
+      const pdf = generateMaturityReport(scores, currentLevel, maturityCategories, recommendations);
       pdf.save(`Relatorio-Maturidade-Vendas-B2B-${new Date().toISOString().split('T')[0]}.pdf`);
       
       toast({

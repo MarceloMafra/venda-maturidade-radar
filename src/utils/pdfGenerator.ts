@@ -35,35 +35,10 @@ function drawPremiumHeader(doc: jsPDF, title: string, pageWidth: number, bgColor
   doc.text(title, pageWidth / 2, 20, { align: 'center' });
 }
 
-// Função para desenhar logo premium com imagem oficial
-async function drawPremiumLogo(doc: jsPDF, x: number, y: number) {
-  try {
-    // Tentar carregar a logo oficial
-    const logoImg = new Image();
-    logoImg.src = '/logo-mastervendas.png';
-
-    // Usar imagem se disponível, senão usar fallback
-    const response = await fetch('/logo-mastervendas.png').catch(() => null);
-    if (response && response.ok) {
-      const blob = await response.blob();
-      const reader = new FileReader();
-      await new Promise((resolve) => {
-        reader.onload = () => {
-          const imgData = reader.result as string;
-          doc.addImage(imgData, 'PNG', x, y, 90, 45);
-          resolve(null);
-        };
-        reader.readAsDataURL(blob);
-      });
-    } else {
-      // Fallback: desenhar logo gerada
-      drawFallbackLogo(doc, x, y);
-    }
-  } catch (error) {
-    // Fallback se algo der errado
-    console.warn('Erro ao carregar logo, usando fallback:', error);
-    drawFallbackLogo(doc, x, y);
-  }
+// Função para desenhar logo premium (versão melhorada)
+function drawPremiumLogo(doc: jsPDF, x: number, y: number) {
+  // Usar logo gerada profissional
+  drawFallbackLogo(doc, x, y);
 }
 
 // Logo gerada como fallback
@@ -193,7 +168,7 @@ function drawRadarChart(
   }
 }
 
-export const generateMaturityReport = async (
+export const generateMaturityReport = (
   scores: Record<string, number>,
   currentLevel: MaturityLevel,
   categories: MaturityCategory[],
@@ -220,7 +195,7 @@ export const generateMaturityReport = async (
   doc.setGlobalAlpha(1);
 
   // Logo
-  await drawPremiumLogo(doc, pageWidth / 2 - 45, 15);
+  drawPremiumLogo(doc, pageWidth / 2 - 45, 15);
 
   // Título premium
   doc.setFontSize(32);
